@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.1 (development)
+## Version 0.0.2 (development)
+
+- feat: Add NM_CONFIG_DIR env var
+
+## Version 0.0.1 (development)
 
 - feat: Initial inet-nm-check
 - feat: Initial inet-nm-commission
