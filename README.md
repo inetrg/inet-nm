@@ -30,19 +30,40 @@ large open-source projects like RIOT OS.
 
 ## Installation
 
-You can install inet_nm via pip:
+### As a developer or single user
+
+You can install inet_nm via pip or pipx (recommended to use a venv):
 
 ```bash
 pip install inet-nm
 ```
 
+### On a shared computer for CI
+
+If you have one computer where many different users may want to access the
+boards it may be better to setup for all users.
+
+First change the config dir to a shared path (by default we select `/etc/environment`):
+```
+sudo sed -i '/NM_CONFIG_DIR/d' /etc/environment && echo 'NM_CONFIG_DIR=/etc/inet-nm' | sudo tee -a /etc/environment
+```
+
+Then install with pip system-wide
+```
+sudo pip install inet-nm
+```
+
+Now all users should be able to access the cli functions. Note that `sudo` will
+be needed to make any changes such as commissioning boards or updating board
+names.
+
 ## Usage
 
 Below is the usage for each of the command-line applications included in inet_nm:
 
-### inet-nm-update-riot
+### inet-nm-update-from-os
 
-This command is used to cache a list of boards.
+This command is used to cache a list of boards and features.
 
 ```
 $ inet-nm-update-from-os -h
@@ -67,58 +88,30 @@ optional arguments:
 
 ### inet-nm-update-commissioned
 
-This command is used to update commissioned features.
+This command is used to update commissioned features, usually after
+`inet-nm-update-from-os` is called.
 
 ```
 $ inet-nm-update-commissioned -h
 usage: inet-nm-update-commissioned [-h] [-c CONFIG]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c CONFIG, --config CONFIG
-                        Path to the config dir
 ```
 
 ### inet-nm-commission
 
-This command is used to commission USB boards.
+This is an interactive prompt to new commission USB boards.
 
 ```
 $ inet-nm-commission -h
 usage: inet-nm-commission [-h] [-c CONFIG] [-b BOARD] [-n]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c CONFIG, --config CONFIG
-                        Path to the config dir
-  -b BOARD, --board BOARD
-                        Name of the board to commission
-  -n, --no-cache        Ignore the cache
 ```
 
 ### inet-nm-check
 
-This command is used to check the state of the boards.
+This command is used to check the list of boards given some conditions.
 
 ```
 $ inet-nm-check -h
 usage: inet-nm-check [-h] [-c CONFIG] [-f FEAT_FILTER [FEAT_FILTER ...]] [-a] [-m] [-e FEAT_EVAL] [-u] [-s] [--show-features]
-
-Check the state of the boards
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c CONFIG, --config CONFIG
-                        Path to the config dir
-  -f FEAT_FILTER [FEAT_FILTER ...], --feat-filter FEAT_FILTER [FEAT_FILTER ...]
-                        Filter all boards that don't provide these features
-  -a, --all-nodes       Show all boards, regardless of connection
-  -m, --missing         Show all missing boards
-  -e FEAT_EVAL, --feat-eval FEAT_EVAL
-                        Evaluate features with this function
-  -u, --used            Show used boards as well
-  -s, --skip-dups       Skip duplicate boards
-  --show-features       Shows all features for all boards
 ```
 
 ### Environment Variables
@@ -134,59 +127,30 @@ NM_BOARD: Board of the node.
 NM_PORT: Port of the node.
 ```
 
+There is also an environment variable to specify the default configuration
+directory.
+```
+NM_CONFIG_DIR
+```
+
 ### inet-nm-exec
 
-This command is used to send commands after starting
-
- a tmux session.
+This command is used to send execute a command or script. It will block the nodes
+until it is finished.
 
 ```
 $ inet-nm-exec -h
 usage: inet-nm-exec [-h] [-t TIMEOUT] [-c CONFIG] [-f FEAT_FILTER [FEAT_FILTER ...]] [-a] [-m] [-e FEAT_EVAL] [-u] [-s] cmd
-
-positional arguments:
-  cmd                   Command to send after starting tmux session.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -t TIMEOUT, --timeout TIMEOUT
-                        Wait until node available in seconds.
-  -c CONFIG, --config CONFIG
-                        Path to the config dir
-  -f FEAT_FILTER [FEAT_FILTER ...], --feat-filter FEAT_FILTER [FEAT_FILTER ...]
-                        Filter all boards that do not provide these features
-  -a, --all-nodes       Show all boards, regardless of connection
-  -m, --missing         Show all missing boards
-  -e FEAT_EVAL, --feat-eval FEAT_EVAL
-                        Evaluate features with this function
-  -u, --used            Show used boards as well
-  -s, --skip-dups       Skip duplicate boards
 ```
 
 ### inet-nm-tmux
 
-This command is used to manage nodes in a tmux session.
+This command is used to manage nodes in a tmux session. It will block the nodes
+until the session is over.
 
 ```
 inet-nm-tmux -h
 usage: inet-nm-tmux [-h] [-w] [-t TIMEOUT] [-x CMD] [-c CONFIG] [-f FEAT_FILTER [FEAT_FILTER ...]] [-a] [-m] [-e FEAT_EVAL] [-u] [-s]
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -w, --window          Open a window for each node.
-  -t TIMEOUT, --timeout TIMEOUT
-                        Wait until node available in seconds.
-  -x CMD, --cmd CMD     Command to send after starting tmux session.
-  -c CONFIG, --config CONFIG
-                        Path to the config dir
-  -f FEAT_FILTER [FEAT_FILTER ...], --feat-filter FEAT_FILTER [FEAT_FILTER ...]
-                        Filter all boards that do not provide these features
-  -a, --all-nodes       Show all boards, regardless of connection
-  -m, --missing         Show all missing boards
-  -e FEAT_EVAL, --feat-eval FEAT_EVAL
-                        Evaluate features with this function
-  -u, --used            Show used boards as well
-  -s, --skip-dups       Skip duplicate boards
 ```
 
 
@@ -198,16 +162,6 @@ gets reconnected during an interactive session.
 ```
 $ inet-nm-tty-from-uid -h
 usage: inet-nm-tty-from-uid [-h] [-c CONFIG] uid
-
-Get the TTY device node string for a given NmNode UID.
-
-positional arguments:
-  uid                   Node UID string.
-
-optional arguments:
-  -h, --help            show this help message and exit
-  -c CONFIG, --config CONFIG
-                        Path to the config di
 ```
 
 ## Example Workflow
