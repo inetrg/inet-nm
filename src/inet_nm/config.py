@@ -6,6 +6,7 @@ the boards and nodes, as well as for handling the path configuration.
 
 import argparse
 import json
+import os
 from pathlib import Path
 from typing import Dict, List, Union
 
@@ -144,6 +145,11 @@ def config_arg(parser: argparse.ArgumentParser):
     Args:
         parser (argparse.ArgumentParser): ArgumentParser object.
     """
+    nm_config_dir = os.environ.get("NM_CONFIG_DIR", "~/.config/inet_nm")
     parser.add_argument(
-        "-c", "--config", default="~/.config/inet_nm", help="Path to the config dir"
+        "-c",
+        "--config",
+        default=nm_config_dir,
+        help="Path to the config dir, defaults to NM_CONFIG_DIR or "
+        "~/.config/inet_nm if NM_CONFIG_DIR is not set",
     )
