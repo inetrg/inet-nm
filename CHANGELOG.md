@@ -1,6 +1,12 @@
 # Changelog
 
 ## Version 0.0.2 (development)
+ - fix: handle empty files and check early
+ - fix: handle broken return types of empty files
+ - cleanup: remove RIOT from src
+ - rework: make config classes
+
+## Version 0.0.2 (development)
 
 - feat: Add NM_CONFIG_DIR env var
 
