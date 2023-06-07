@@ -279,7 +279,7 @@ def get_filtered_nodes(
     Returns:
         A list of filtered nodes.
     """
-    nodes = cfg.load_nodes(config)
+    nodes = cfg.NodesConfig(config).load()
     locked_nodes = get_locked_uids()
     nodes = check_nodes(
         nodes, all_nodes, missing, feat_filter, feat_eval, used, skip_dups, locked_nodes

@@ -156,8 +156,13 @@ def commission():
     )
 
     args = parser.parse_args()
+    nodes_cfg = cfg.NodesConfig(args.config)
+    bi_cfg = cfg.BoardInfoConfig(args.config)
+    # Check early since we will need to write eventually
+    nodes_cfg.check_file(writable=True)
+    bi_cfg.check_file(writable=False)
 
-    saved_nodes = cfg.load_nodes(args.config)
+    saved_nodes = nodes_cfg.load()
     nm_nodes = (
         get_devices_from_tty() if args.no_cache else get_devices_from_tty(saved_nodes)
     )
@@ -168,14 +173,14 @@ def commission():
     except ValueError:
         print("No available nodes found")
         return
-    binfo = cfg.load_board_info(args.config)
+    binfo = bi_cfg.load()
     selected_node.board = select_board(list(binfo.keys()), selected_node)
     if selected_node.board in binfo:
         selected_node.features_provided = binfo[selected_node.board]
 
     nodes = add_node_to_nodes(saved_nodes, selected_node)
-    cfg.save_nodes(args.config, nodes)
-    print(f"Updated {cfg.nodes_path(args.config)}")
+    nodes_cfg.save(nodes)
+    print(f"Updated {nodes_cfg.file_path}")
 
 
 def update_commissioned():
@@ -183,13 +188,20 @@ def update_commissioned():
     parser = argparse.ArgumentParser(description="Update commissioned features")
     cfg.config_arg(parser)
     args = parser.parse_args()
-    binfo = cfg.load_board_info(args.config)
-    nodes = cfg.load_nodes(args.config)
+
+    nodes_cfg = cfg.NodesConfig(args.config)
+    bi_cfg = cfg.BoardInfoConfig(args.config)
+
+    nodes_cfg.check_file(writable=True)
+    bi_cfg.check_file(writable=False)
+
+    binfo = bi_cfg.load()
+    nodes = nodes_cfg.load()
     for node in nodes:
         if node.board in binfo:
             node.features_provided = binfo[node.board]
-    cfg.save_nodes(args.config, nodes)
-    print(f"Updated {cfg.nodes_path(args.config)}")
+    nodes_cfg.save(nodes)
+    print(f"Updated {nodes_cfg.file_path}")
 
 
 def cli_tty_from_uid():
@@ -200,7 +212,11 @@ def cli_tty_from_uid():
     cfg.config_arg(parser)
     parser.add_argument("uid", help="Node UID string.")
     args = parser.parse_args()
-    nodes = cfg.load_nodes(args.config)
+
+    nodes_cfg = cfg.NodesConfig(args.config)
+    nodes_cfg.check_file(writable=False)
+
+    nodes = nodes_cfg.load()
     try:
         node = next(node for node in nodes if node.uid == args.uid)
     except StopIteration:

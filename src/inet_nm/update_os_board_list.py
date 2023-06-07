@@ -1,10 +1,12 @@
 import argparse
 import os
 import subprocess
+import sys
 from pathlib import Path
 from typing import List
 
 import inet_nm.config as cfg
+from inet_nm._helpers import nm_print, nm_prompt_confirm
 
 
 def _get_names(cmd: str, cwd: Path) -> List[str]:
@@ -21,17 +23,15 @@ def _get_features_provided(
     boards = {}
     errors = []
     for bn in board_names:
-        print(f"Getting features_provided for {bn}")
+        nm_print(f"Getting features_provided for {bn}")
         env = os.environ.copy()
         env[board_env_var] = bn
         res = subprocess.run(cmd.split(), cwd=cwd, env=env, capture_output=True)
         if res.returncode != 0:
             errors.append(bn)
-            print(f"FAILED to run {cmd} for {bn}")
+            nm_print(f"FAILED to run {cmd} for {bn}")
         boards[bn] = res.stdout.decode().split()
-    if errors:
-        raise RuntimeError(f"Failed to run {cmd} for {errors}")
-    return boards
+    return (boards, errors)
 
 
 def cli_update_boards_from_os():
@@ -64,13 +64,21 @@ def cli_update_boards_from_os():
     args = parser.parse_args()
 
     try:
+        bi_cfg = cfg.BoardInfoConfig(args.config)
+
+        bi_cfg.check_file(writable=True)
+
         bns = _get_names(args.board_info, args.basedir)
-        board_info = _get_features_provided(
+        board_info, errors = _get_features_provided(
             args.board_features, args.basedir, args.board_env_var, bns
         )
-        cfg.save_board_info(args.config, board_info)
-        print(f"\nUpdated {cfg.board_info_path(args.config)}")
+        if errors:
+            nm_print(f"Failed to get {args.board_features} for {errors}")
+            if not nm_prompt_confirm("Write boards anyways", default=False):
+                sys.exit(1)
+        bi_cfg.save(board_info)
+        nm_print(f"\nUpdated {bi_cfg.file_path}")
     except KeyboardInterrupt:
-        print("\nUser aborted")
-    except RuntimeError as e:
-        print(f"\nError: {e}")
+        nm_print("\nUser aborted")
+        sys.exit(2)
+    sys.exit(0)

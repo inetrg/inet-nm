@@ -13,114 +13,124 @@ from typing import Dict, List, Union
 from inet_nm.data_types import NmNode
 
 
-def _file_from_path(config_dir: Union[Path, str], file_name: str) -> Path:
-    """
-    Return a file path constructed from config_dir and file_name.
+class _ConfigFile:
 
-    Args:
-        config_dir: Directory for the configuration files.
-        file_name: Name of the file.
+    _FILENAME = None
+    _LOAD_TYPE = None
 
-    Returns:
-        The full path to the file.
-    """
-    config_dir = Path(config_dir).expanduser()
-    file_path = config_dir / file_name
-    config_dir.parent.mkdir(parents=True, exist_ok=True)
-    return file_path
+    def __init__(self, config_dir: Union[Path, str]):
+        config_dir = Path(config_dir)
+        self.file_path = Path(config_dir / self._FILENAME).expanduser()
 
+    def check_file(self, writable: bool = False) -> bool:
+        """
+        Check if a file exists and can be accessed.
 
-def nodes_path(config_dir: Union[Path, str]) -> Path:
-    """
-    Get the path to the nodes file.
+        Args:
+            writable: If True, check if the file is writable.
 
-    Args:
-        config_dir: Directory for the configuration files.
+        Returns:
+            True if the file exists and can be accessed, False otherwise.
+        """
+        file_path = self.file_path
+        file_path.parent.mkdir(parents=True, exist_ok=True)
 
-    Returns:
-        The full path to the nodes file.
-    """
-    return _file_from_path(config_dir, "nodes.json")
+        if writable:
+            file_path.touch()
+        else:
+            if not file_path.exists():
+                return False
+            if not file_path.stat().st_size:
+                return False
+            with file_path.open():
+                pass
+        return True
 
+    def save(self, data):
+        self.check_file(writable=True)
+        with self.file_path.open("w") as file:
+            json.dump(data, file, indent=2, sort_keys=True)
 
-def board_info_path(config_dir: Union[Path, str]) -> Path:
-    """
-    Get the path to the board info file.
-
-    Args:
-        config_dir: Directory for the configuration files.
-
-    Returns:
-        The full path to the board info file.
-    """
-    return _file_from_path(config_dir, "board_info.json")
-
-
-def save_board_info(
-    config_dir: Union[Path, str], board_info: Dict[str, Union[str, int]]
-):
-    """
-    Write the board_info dict to a json file in the config_dir.
-
-    Args:
-        config_dir: Directory for the configuration files.
-        board_info: Board information to save.
-    """
-    file_path = board_info_path(config_dir)
-    with file_path.open("w") as file:
-        json.dump(board_info, file, indent=2, sort_keys=True)
+    def load(self):
+        if not self.check_file(writable=False):
+            return self._LOAD_TYPE()
+        with self.file_path.open() as file:
+            return json.load(file)
 
 
-def load_board_info(config_dir: Union[Path, str]) -> Dict[str, List[str]]:
-    """
-    Load and return the riot board info from a json file in the config_dir.
+class BoardInfoConfig(_ConfigFile):
+    """Class for handling the board info configuration.
+
+    The board info configuration is a JSON file containing a dictionary
+    with the board name as key and a list of features provided by the
+    board as value.
+
+    The board info configuration file is located in the config directory
+    and is named board_info.json.
 
     Args:
         config_dir: Directory for the configuration files.
 
-    Returns:
-        The board information.
+    Attributes:
+        file_path (Path): Path to the board info configuration file.
     """
-    file_path = board_info_path(config_dir)
-    if not file_path.exists():
-        return {}
 
-    with file_path.open() as file:
-        return json.load(file)
+    _FILENAME = "board_info.json"
+    _LOAD_TYPE = dict
+
+    def save(self, data: Dict[str, Union[str, int]]):
+        """Save the board info configuration.
+
+        Args:
+            data: The board info data to save.
+        """
+        return super().save(data)
+
+    def load(self) -> Dict[str, Union[str, int]]:
+        """Load the board info configuration.
+
+        Returns:
+            The loaded board info data.
+        """
+        return super().load()
 
 
-def load_nodes(config_dir: Union[Path, str]) -> List[NmNode]:
-    """
-    Load and return the nodes from a json file in the config_dir.
+class NodesConfig(_ConfigFile):
+    """Class for handling the nodes configuration.
+
+    The nodes configuration is a JSON file containing a list of
+    NmNode objects.
+
+    The nodes configuration file is located in the config directory
+    and is named nodes.json.
 
     Args:
         config_dir: Directory for the configuration files.
 
-    Returns:
-        The nodes.
+    Attributes:
+        file_path (Path): Path to the nodes configuration file.
     """
-    file_path = nodes_path(config_dir)
-    if not file_path.exists():
-        return []
 
-    with file_path.open() as file:
-        data = json.load(file)
+    _FILENAME = "nodes.json"
+    _LOAD_TYPE = list
 
-    return [NmNode.from_dict(item) for item in data]
+    def save(self, data: List[NmNode]):
+        """Save the nodes configuration.
 
+        Args:
+            data: The nodes data to save.
+        """
+        data = [node.to_dict() for node in data]
+        return super().save(data)
 
-def save_nodes(config_dir: Union[Path, str], boards: List[NmNode]):
-    """
-    Write the list of boards to a json file in the config_dir.
+    def load(self) -> List[NmNode]:
+        """Load the nodes configuration.
 
-    Args:
-        config_dir (Union[Path, str]): Directory for the configuration files.
-        boards (List[NmNode]): List of boards to save.
-    """
-    file_path = nodes_path(config_dir)
-    with file_path.open("w") as file:
-        data = [board.to_dict() for board in boards]
-        json.dump(data, file, indent=2)
+        Returns:
+            The loaded nodes data.
+        """
+        data = super().load()
+        return [NmNode.from_dict(item) for item in data]
 
 
 def get_lock_path(config_dir: Union[Path, str]) -> Path:
