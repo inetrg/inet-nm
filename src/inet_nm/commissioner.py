@@ -168,7 +168,7 @@ def commission():
     except ValueError:
         print("No available nodes found")
         return
-    binfo = cfg.load_riot_board_info(args.config)
+    binfo = cfg.load_board_info(args.config)
     selected_node.board = select_board(list(binfo.keys()), selected_node)
     if selected_node.board in binfo:
         selected_node.features_provided = binfo[selected_node.board]
@@ -183,7 +183,7 @@ def update_commissioned():
     parser = argparse.ArgumentParser(description="Update commissioned features")
     cfg.config_arg(parser)
     args = parser.parse_args()
-    binfo = cfg.load_riot_board_info(args.config)
+    binfo = cfg.load_board_info(args.config)
     nodes = cfg.load_nodes(args.config)
     for node in nodes:
         if node.board in binfo:

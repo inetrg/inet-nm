@@ -56,7 +56,7 @@ def board_info_path(config_dir: Union[Path, str]) -> Path:
     return _file_from_path(config_dir, "board_info.json")
 
 
-def save_riot_board_info(
+def save_board_info(
     config_dir: Union[Path, str], board_info: Dict[str, Union[str, int]]
 ):
     """
@@ -71,7 +71,7 @@ def save_riot_board_info(
         json.dump(board_info, file, indent=2, sort_keys=True)
 
 
-def load_riot_board_info(config_dir: Union[Path, str]) -> List[str]:
+def load_board_info(config_dir: Union[Path, str]) -> List[str]:
     """
     Load and return the riot board info from a json file in the config_dir.
 

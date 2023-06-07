@@ -68,7 +68,7 @@ def cli_update_boards_from_os():
         board_info = _get_features_provided(
             args.board_features, args.basedir, args.board_env_var, bns
         )
-        cfg.save_riot_board_info(args.config, board_info)
+        cfg.save_board_info(args.config, board_info)
         print(f"\nUpdated {cfg.board_info_path(args.config)}")
     except KeyboardInterrupt:
         print("\nUser aborted")

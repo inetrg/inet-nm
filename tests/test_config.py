@@ -2,21 +2,21 @@ import pytest
 
 from inet_nm.config import (
     get_lock_path,
+    load_board_info,
     load_nodes,
-    load_riot_board_info,
+    save_board_info,
     save_nodes,
-    save_riot_board_info,
 )
 from inet_nm.data_types import NmNode
 
 
-def test_save_load_riot_board_info(tmp_path):
+def test_save_load_board_info(tmp_path):
     """Test saving and loading the riot board info."""
     board_info = {"board": "riot", "version": "1.0"}
-    save_riot_board_info(tmp_path, board_info)
-    loaded_board_info = load_riot_board_info(tmp_path)
+    save_board_info(tmp_path, board_info)
+    loaded_board_info = load_board_info(tmp_path)
     assert loaded_board_info == board_info
-    assert len(load_riot_board_info("does_not_exist")) == 0
+    assert len(load_board_info("does_not_exist")) == 0
 
 
 @pytest.mark.parametrize(
