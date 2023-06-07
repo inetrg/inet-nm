@@ -16,7 +16,10 @@ def test_save_load_board_info(tmp_path):
     save_board_info(tmp_path, board_info)
     loaded_board_info = load_board_info(tmp_path)
     assert loaded_board_info == board_info
-    assert len(load_board_info("does_not_exist")) == 0
+
+    res = load_board_info("does_not_exist")
+    assert len(res) == 0
+    assert isinstance(res, dict)
 
 
 @pytest.mark.parametrize(

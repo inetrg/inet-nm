@@ -71,7 +71,7 @@ def save_board_info(
         json.dump(board_info, file, indent=2, sort_keys=True)
 
 
-def load_board_info(config_dir: Union[Path, str]) -> List[str]:
+def load_board_info(config_dir: Union[Path, str]) -> Dict[str, List[str]]:
     """
     Load and return the riot board info from a json file in the config_dir.
 
@@ -83,7 +83,7 @@ def load_board_info(config_dir: Union[Path, str]) -> List[str]:
     """
     file_path = board_info_path(config_dir)
     if not file_path.exists():
-        return []
+        return {}
 
     with file_path.open() as file:
         return json.load(file)
