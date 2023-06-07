@@ -1,10 +1,12 @@
 """This module commissions USB boards."""
 import argparse
+import random
 import sys
 from typing import List, Optional
 
 import pyudev
 
+import inet_nm._helpers as hlp
 import inet_nm.config as cfg
 from inet_nm._helpers import nm_prompt_choice, nm_prompt_confirm, nm_prompt_input
 from inet_nm.data_types import NmNode
@@ -146,6 +148,21 @@ def select_board(board_names: List[str], node: NmNode) -> str:
             return board
 
 
+def mock_device():
+    """Mock a device, useful for boards that do not have USB interfaces"""
+
+    sn = f"{random.randint(0, 10**20)}".zfill(20)
+    sn = hlp.nm_prompt_default_input("Enter serial number", sn)
+    return NmNode(
+        vendor_id="1234",
+        product_id="5678",
+        serial=sn,
+        vendor="generic_vendor",
+        driver="mock",
+        mock=True,
+    )
+
+
 def commission():
     """CLI to commission a USB board."""
     parser = argparse.ArgumentParser(description="Commission USB boards")
@@ -153,6 +170,12 @@ def commission():
     parser.add_argument("-b", "--board", help="Name of the board to commission")
     parser.add_argument(
         "-n", "--no-cache", help="Ignore the cache", action="store_true"
+    )
+    parser.add_argument(
+        "-m",
+        "--mock-dev",
+        help="Mock a device, useful for boards that do not have USB interfaces",
+        action="store_true",
     )
 
     args = parser.parse_args()
@@ -166,6 +189,8 @@ def commission():
     nm_nodes = (
         get_devices_from_tty() if args.no_cache else get_devices_from_tty(saved_nodes)
     )
+    if args.mock_dev:
+        nm_nodes.append(mock_device())
     print(f"Found {len(saved_nodes)} saved nodes in {args.config}")
 
     try:

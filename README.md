@@ -275,7 +275,6 @@ For any questions or contributions, please refer to the issues tab or the contri
     - Caching usb locations
 - check if tmux is installed
 - cleanup exception handling
-- Commission fake boards
 - remove all or one board
 - commission ignored devices
 - shell script prepend a string to stdio

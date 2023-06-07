@@ -45,6 +45,7 @@ class NmNode(DictSerializable):
         uid: Unique ID of the device
         board: Name of the board.
         features_provided: List of features provided by the device.
+        mock: Whether the node is a mock node.
     """
 
     serial: str
@@ -56,6 +57,7 @@ class NmNode(DictSerializable):
     uid: Optional[str] = None
     board: Optional[str] = None
     features_provided: Optional[List[str]] = None
+    mock: bool = False
 
     def __post_init__(self):
         """Initialize additional attributes after instantiation."""

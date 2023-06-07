@@ -167,7 +167,7 @@ def nm_prompt_input(prompt: str, options: List[str] = None) -> str:
         options: List of auto-completion options.
 
     Returns:
-        str: User input.
+        User input.
     """
     if options is None:
         options = []
@@ -179,6 +179,19 @@ def nm_prompt_input(prompt: str, options: List[str] = None) -> str:
 
     nm_print(prompt)
     return nm_input("> ")
+
+
+def nm_prompt_default_input(prompt: str, default: str) -> str:
+    """
+    Interactive user prompt with auto-completion and default value.
+
+    Args:
+        prompt: Message to display to the user.
+        default: Default value.
+
+        Returns:
+            User input."""
+    return nm_input(f"{prompt} [{default}]: ") or default
 
 
 def nm_prompt_confirm(msg: str, default: bool = False) -> bool:
