@@ -14,7 +14,6 @@ from inet_nm.data_types import NmNode
 
 
 class _ConfigFile:
-
     _FILENAME = None
     _LOAD_TYPE = None
 
