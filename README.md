@@ -1,3 +1,4 @@
+[![CI Tests](https://github.com/inetrg/inet-nm/actions/workflows/ci.yml)](https://github.com/inetrg/inet-nm/actions/workflows/ci.yml/badge.svg)
 [![ReadTheDocs](https://readthedocs.org/projects/inet-nm/badge/?version=latest)](https://inet-nm.readthedocs.io/en/stable/)
 [![PyPI-Server](https://img.shields.io/pypi/v/inet-nm.svg)](https://pypi.org/project/inet-nm/)
 [![Monthly Downloads](https://pepy.tech/badge/inet-nm/month)](https://pepy.tech/project/inet-nm)
@@ -263,7 +264,8 @@ For any questions or contributions, please refer to the issues tab or the contri
 
 ## Roadmap
 
-- Add setup with pipx
+- Check to see if config file is writeable first
+- Prompt to write config board info files if failures occur
 - Add optional power control
     - Check if power control available for which boards
     - Turn all ports on by default whenever checking connection
@@ -277,7 +279,6 @@ For any questions or contributions, please refer to the issues tab or the contri
 - remove all or one board
 - commission ignored devices
 - shell script prepend a string to stdio
-- abstract riot update to make it generic
 - test paned windows with many many boards
 - allow user boards that will not get overwritten
 - Nice readme with some gifs of usage
