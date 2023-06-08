@@ -1,6 +1,10 @@
 # Changelog
 
-## Version 0.0.2 (development)
+## Version 0.0.4 (development)
+ - feat: Add node id output to exec command
+ - fix: cleanup incorrect documentation
+
+## Version 0.0.3 (development)
  - fix: handle empty files and check early
  - fix: handle broken return types of empty files
  - cleanup: remove RIOT from src
