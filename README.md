@@ -247,12 +247,12 @@ NM_IDX=1
 6. While the terminal is still open, run another script.
 This will not use the boards that have been used for interactive session.
 ```
-$ inet-nm-exec "printenv | grep NM_BOARD"
-NM_BOARD=frdm-kw41z
-NM_BOARD=saml11-xpro
-NM_BOARD=remote-revb
-NM_BOARD=esp32-wroom-32
-NM_BOARD=b-l072z-lrwan1
+$ inet-nm-exec "echo NM_BOARD=\$NM_BOARD"
+NODE:0:BOARD:frdm-kw41z: NM_BOARD=frdm-kw41z
+NODE:1:BOARD:saml11-xpro: NM_BOARD=saml11-xpro
+NODE:2:BOARD:remote-revb: NM_BOARD=remote-revb
+NODE:3:BOARD:esp32-wroom-32: NM_BOARD=esp32-wroom-32
+NODE:4:BOARD:b-l072z-lrwan1: NM_BOARD=b-l072z-lrwan1
 ```
 
 ## License
@@ -283,3 +283,5 @@ For any questions or contributions, please refer to the issues tab or the contri
 - Nice readme with some gifs of usage
 - Add a CLI way and example get the port live based off UID to handle reconnecting within tmux session
 - Improve getting started
+- exec command should exit all threads safely on keyboard interrupt
+- Add a session or exec timeout that will abort if the call takes too long
