@@ -6,7 +6,9 @@ import inet_nm.runner_apps as apps
 
 
 def nm_tmux():
-    parser = argparse.ArgumentParser(description="Commission USB boards")
+    parser = argparse.ArgumentParser(
+        description="Starts interactive sessions for each node."
+    )
     parser.add_argument(
         "-w", "--window", action="store_true", help="Open a window for each node."
     )
@@ -46,9 +48,14 @@ def nm_tmux():
 
 
 def nm_exec():
-    parser = argparse.ArgumentParser(description="Commission USB boards")
+    parser = argparse.ArgumentParser(
+        description="Execute command for each note environment."
+    )
     parser.add_argument(
-        "cmd", type=str, help="Command to send after starting tmux session."
+        "cmd",
+        type=str,
+        help="bash command to execute, ' must be escaped and generally pay"
+        " attention to escape characters.",
     )
     parser.add_argument(
         "-t",

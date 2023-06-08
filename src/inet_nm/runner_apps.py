@@ -12,6 +12,7 @@ import subprocess
 import time
 from typing import Dict
 
+from inet_nm._helpers import nm_print
 from inet_nm.data_types import NmNode
 from inet_nm.runner_base import NmNodesRunner
 
@@ -21,9 +22,33 @@ class NmShellRunner(NmNodesRunner):
 
     This class inherits from NmNodesRunner and overrides the func method
     to execute shell commands on nodes.
+
+    Attributes:
+        cmd: Command to execute on nodes.
     """
 
     cmd = "echo $NM_IDX"
+    SETUP_WAIT = 0.1
+
+    @staticmethod
+    def _run_command(cmd, prefix, env):
+        process = subprocess.Popen(
+            cmd, env=env, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        while True:
+            output = process.stdout.readline()
+
+            if output:
+                nm_print(f"{prefix}{output.decode().strip()}")
+            else:
+                # Have a small sleep so we are not burning CPU waiting for output.
+                time.sleep(0.2)
+            poll = process.poll()
+            if poll is not None:
+                break
+        rc = process.returncode
+
+        return rc
 
     def func(self, node: NmNode, idx: int, env: Dict[str, str]):
         """Execute shell commands on nodes.
@@ -33,11 +58,23 @@ class NmShellRunner(NmNodesRunner):
             idx: Index of the node.
             env: Environment variables for the command.
         """
+        time.sleep(idx * self.SETUP_WAIT)
         full_env = {**os.environ, **env}  # Merge original and new environment variables
         full_env = {
             k: str(v) for k, v in full_env.items()
         }  # Cast everything in env to a string
-        subprocess.run(self.cmd, shell=True, env=full_env)
+
+        prefix = f"NODE:{idx}"
+        if node.board:
+            prefix += f":BOARD:{node.board}"
+        prefix += ": "
+
+        # Since most use cases are with bash we will use that as the default shell.
+        # This may change as soon as we have a use case that requires a different shell.
+        # Note that the run command exits after one command is executed.
+        # So if we want to loop with a default shell it will exit after the first loop.
+        cmd = f"/bin/bash -c '{self.cmd}'"
+        NmShellRunner._run_command(cmd, prefix=prefix, env=full_env)
 
 
 class NmTmuxBaseRunner(NmNodesRunner):
