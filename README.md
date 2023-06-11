@@ -264,8 +264,6 @@ For any questions or contributions, please refer to the issues tab or the contri
 
 ## Roadmap
 
-- Check to see if config file is writeable first
-- Prompt to write config board info files if failures occur
 - Add optional power control
     - Check if power control available for which boards
     - Turn all ports on by default whenever checking connection
@@ -273,12 +271,8 @@ For any questions or contributions, please refer to the issues tab or the contri
     - flags to prevent power options
     - Generic command to turn on all ports or specific nodes
     - Caching usb locations
-- check if tmux is installed
 - cleanup exception handling
 - remove all or one board
-- commission ignored devices
-- shell script prepend a string to stdio
-- test paned windows with many many boards
 - allow user boards that will not get overwritten
 - Nice readme with some gifs of usage
 - Add a CLI way and example get the port live based off UID to handle reconnecting within tmux session
