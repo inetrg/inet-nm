@@ -147,6 +147,16 @@ def get_lock_path(config_dir: Union[Path, str]) -> Path:
     return config_dir
 
 
+def get_default_path() -> Path:
+    """
+    Return the default path for the configuration files.
+
+    Returns:
+        Path: The default path for the configuration files.
+    """
+    return Path(os.environ.get("NM_CONFIG_DIR", "~/.config/inet_nm")).expanduser()
+
+
 def config_arg(parser: argparse.ArgumentParser):
     """
     Add a configuration argument to the provided parser.
@@ -154,11 +164,10 @@ def config_arg(parser: argparse.ArgumentParser):
     Args:
         parser (argparse.ArgumentParser): ArgumentParser object.
     """
-    nm_config_dir = os.environ.get("NM_CONFIG_DIR", "~/.config/inet_nm")
     parser.add_argument(
         "-c",
         "--config",
-        default=nm_config_dir,
+        default=get_default_path(),
         help="Path to the config dir, defaults to NM_CONFIG_DIR or "
         "~/.config/inet_nm if NM_CONFIG_DIR is not set",
     )
