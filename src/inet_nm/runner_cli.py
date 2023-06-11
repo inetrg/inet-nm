@@ -1,8 +1,32 @@
 import argparse
+import subprocess
+import sys
 
 import inet_nm.check as check
 import inet_nm.config as cfg
 import inet_nm.runner_apps as apps
+
+
+def _is_command_available(cmd):
+    return_code = subprocess.call(
+        f"which {cmd}", shell=True, stdout=subprocess.DEVNULL, stderr=subprocess.STDOUT
+    )
+    if return_code != 0:
+        print(f"{cmd} is not available! Please install first.")
+        sys.exit(1)
+
+
+def _check_filtered_nodes(**kwargs):
+    nodes = check.get_filtered_nodes(**kwargs)
+    if len(nodes) == 0:
+        print("No available nodes!")
+        sys.exit(1)
+    return nodes
+
+
+def _sanity_check(cmd, **kwargs):
+    _is_command_available(cmd)
+    return _check_filtered_nodes(**kwargs)
 
 
 def nm_tmux():
@@ -33,10 +57,7 @@ def nm_tmux():
     window = kwargs.pop("window")
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
-    nodes = check.get_filtered_nodes(**kwargs)
-    if len(nodes) == 0:
-        print("No available nodes!")
-        return
+    nodes = _sanity_check("tmux", **kwargs)
     if window:
         with apps.NmTmuxWindowedRunner(nodes, default_timeout=timeout) as runner:
             runner.cmd = cmd
@@ -71,10 +92,7 @@ def nm_exec():
     kwargs = vars(args)
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
-    nodes = check.get_filtered_nodes(**kwargs)
-    if len(nodes) == 0:
-        print("No available nodes!")
-        return
+    nodes = nodes = _sanity_check("/bin/bash", **kwargs)
     with apps.NmShellRunner(nodes, default_timeout=timeout) as runner:
         runner.cmd = cmd
         runner.run()
