@@ -199,7 +199,7 @@ def commission():
         print("No available nodes found")
         return
     binfo = bi_cfg.load()
-    selected_node.board = select_board(list(binfo.keys()), selected_node)
+    selected_node.board = args.board or select_board(list(binfo.keys()), selected_node)
     if selected_node.board in binfo:
         selected_node.features_provided = binfo[selected_node.board]
 
