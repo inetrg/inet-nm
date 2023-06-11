@@ -46,6 +46,7 @@ class NmNode(DictSerializable):
         board: Name of the board.
         features_provided: List of features provided by the device.
         mock: Whether the node is a mock node.
+        ignore: Whether the node should be ignored.
     """
 
     serial: str
@@ -58,6 +59,7 @@ class NmNode(DictSerializable):
     board: Optional[str] = None
     features_provided: Optional[List[str]] = None
     mock: bool = False
+    ignore: bool = False
 
     def __post_init__(self):
         """Initialize additional attributes after instantiation."""

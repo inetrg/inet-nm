@@ -218,6 +218,8 @@ def check_nodes(
         nodes = eval_features(nodes, features, feat_eval)
     if skip_dups:
         nodes = skip_duplicate_boards(nodes)
+    # filter out ignored nodes
+    nodes = [node for node in nodes if not node.ignore]
     return nodes
 
 

@@ -177,6 +177,13 @@ def commission():
         help="Mock a device, useful for boards that do not have USB interfaces",
         action="store_true",
     )
+    parser.add_argument(
+        "-i",
+        "--ignore",
+        help="Device will always be ignore, used for ttys that are connected "
+        "but not part of the inet-nm ecosystem.",
+        action="store_true",
+    )
 
     args = parser.parse_args()
     nodes_cfg = cfg.NodesConfig(args.config)
@@ -197,11 +204,16 @@ def commission():
         selected_node = select_available_node(nm_nodes)
     except ValueError:
         print("No available nodes found")
-        return
-    binfo = bi_cfg.load()
-    selected_node.board = args.board or select_board(list(binfo.keys()), selected_node)
-    if selected_node.board in binfo:
-        selected_node.features_provided = binfo[selected_node.board]
+        sys.exit(1)
+    if args.ignore:
+        selected_node.ignore = True
+    else:
+        binfo = bi_cfg.load()
+        selected_node.board = args.board or select_board(
+            list(binfo.keys()), selected_node
+        )
+        if selected_node.board in binfo:
+            selected_node.features_provided = binfo[selected_node.board]
 
     nodes = add_node_to_nodes(saved_nodes, selected_node)
     nodes_cfg.save(nodes)
