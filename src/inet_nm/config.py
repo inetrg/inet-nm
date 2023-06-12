@@ -132,21 +132,6 @@ class NodesConfig(_ConfigFile):
         return [NmNode.from_dict(item) for item in data]
 
 
-def get_lock_path(config_dir: Union[Path, str]) -> Path:
-    """
-    Return the lock file path constructed from config_dir.
-
-    Args:
-        config_dir (Union[Path, str]): Directory for the configuration files.
-
-    Returns:
-        Path: The full path to the lock file.
-    """
-    config_dir = Path(config_dir).expanduser() / "locks"
-    config_dir.mkdir(parents=True, exist_ok=True)
-    return config_dir
-
-
 def get_default_path() -> Path:
     """
     Return the default path for the configuration files.

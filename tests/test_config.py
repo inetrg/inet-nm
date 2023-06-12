@@ -37,9 +37,3 @@ def test_save_load_config(tmp_path, params):
     res = cfg_type("does_not_exist").load()
     assert len(res) == 0
     assert isinstance(res, cfg_type._LOAD_TYPE)
-
-
-def test_get_lock_path(tmp_path):
-    """Test getting the lock path."""
-    lock_path = cfg.get_lock_path(tmp_path)
-    assert lock_path == tmp_path / "locks"
