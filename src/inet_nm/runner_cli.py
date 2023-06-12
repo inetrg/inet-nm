@@ -37,6 +37,9 @@ def nm_tmux():
         "-w", "--window", action="store_true", help="Open a window for each node."
     )
     parser.add_argument(
+        "-n", "--session-name", default="default", help="Name of the tmux session."
+    )
+    parser.add_argument(
         "-t",
         "--timeout",
         type=float,
@@ -57,14 +60,17 @@ def nm_tmux():
     window = kwargs.pop("window")
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
+    sname = kwargs.pop("session_name")
     nodes = _sanity_check("tmux", **kwargs)
     if window:
         with apps.NmTmuxWindowedRunner(nodes, default_timeout=timeout) as runner:
             runner.cmd = cmd
+            runner.session_name = sname
             runner.run()
     else:
         with apps.NmTmuxPanedRunner(nodes, default_timeout=timeout) as runner:
             runner.cmd = cmd
+            runner.session_name = sname
             runner.run()
 
 
