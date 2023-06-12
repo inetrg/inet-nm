@@ -272,6 +272,37 @@ For any questions or contributions, please refer to the issues tab or the contri
     - Generic command to turn on all ports or specific nodes
     - Caching usb locations
 - cleanup exception handling
+  - Removing lock if they have been removed before...
+```
+$ inet-nm-tmux -a
+duplicate session: default
+[exited]
+Traceback (most recent call last):
+  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_cli.py", line 91, in nm_tmux
+    runner.run()
+  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 123, in run
+    self.release()
+  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 85, in release
+    lock.release()
+  File "/home/weiss/wd/inet-nm/src/inet_nm/filelock.py", line 89, in release
+    os.unlink(self.file_name)
+FileNotFoundError: [Errno 2] No such file or directory: '/tmp/inet_nm/locks/e8d68aaf8b4119ca21db0849a8339568.lock'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/home/weiss/wd/inet-nm/.venv/bin/inet-nm-tmux", line 33, in <module>
+    sys.exit(load_entry_point('inet-nm', 'console_scripts', 'inet-nm-tmux')())
+  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_cli.py", line 91, in nm_tmux
+    runner.run()
+  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 130, in __exit__
+    self.release()
+  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 85, in release
+    lock.release()
+  File "/home/weiss/wd/inet-nm/src/inet_nm/filelock.py", line 88, in release
+    os.close(self.fd)
+OSError: [Errno 9] Bad file descriptor
+```
 - remove all or one board
 - allow user boards that will not get overwritten
 - Nice readme with some gifs of usage
@@ -279,3 +310,4 @@ For any questions or contributions, please refer to the issues tab or the contri
 - Improve getting started
 - exec command should exit all threads safely on keyboard interrupt
 - Add a session or exec timeout that will abort if the call takes too long
+- Add tests that go through the cli
