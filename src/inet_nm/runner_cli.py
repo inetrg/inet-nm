@@ -41,6 +41,10 @@ def _kill_tmux(session_name):
     exit(1)
 
 
+def _do_nothing(signum, frame):
+    pass
+
+
 def nm_tmux():
     parser = argparse.ArgumentParser(
         description="Starts interactive sessions for each node."
@@ -80,7 +84,7 @@ def nm_tmux():
     # to remove the lockfiles
     # It seems the tmux session will still remain but at least
     # the lockfiles will be removed...
-    signal.signal(signal.SIGHUP, lambda x, y: print())
+    signal.signal(signal.SIGHUP, _do_nothing)
     if window:
         with apps.NmTmuxWindowedRunner(nodes, default_timeout=timeout) as runner:
             runner.cmd = cmd
@@ -119,6 +123,14 @@ def nm_exec():
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
     nodes = nodes = _sanity_check("/bin/bash", **kwargs)
-    with apps.NmShellRunner(nodes, default_timeout=timeout) as runner:
-        runner.cmd = cmd
-        runner.run()
+    # Somehow allows cleanup to happen...
+    signal.signal(signal.SIGHUP, _do_nothing)
+    try:
+        with apps.NmShellRunner(nodes, default_timeout=timeout) as runner:
+            runner.cmd = cmd
+            runner.run()
+    except KeyboardInterrupt:
+        print()
+        print("User aborted!")
+        sys.exit(1)
+    sys.exit(0)
