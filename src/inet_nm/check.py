@@ -57,13 +57,16 @@ def get_nodes_with_state(nodes: List[NmNode], connected=True) -> List[NmNode]:
     return selected_nodes
 
 
-def remove_used_nodes(nodes: List[NmNode], used_uids: List[str]) -> List[NmNode]:
+def filter_used_nodes(
+    nodes: List[NmNode], used_uids: List[str], remove=True
+) -> List[NmNode]:
     """
-    Remove the nodes that are already used from the list of nodes.
+    Filter the nodes based on the provided used UIDs.
 
     Args:
         nodes: A list of nodes to filter.
         used_uids: A list of UIDs of nodes that are already used.
+        remove: If True, remove the used nodes. If False, remove the unused nodes.
 
     Returns:
         List[NmNode]: A list of nodes that are not already used.
@@ -72,7 +75,9 @@ def remove_used_nodes(nodes: List[NmNode], used_uids: List[str]) -> List[NmNode]
         used_uids = []
     selected_nodes = []
     for node in nodes:
-        if node.uid not in used_uids:
+        if node.uid not in used_uids and remove:
+            selected_nodes.append(node)
+        elif node.uid in used_uids and not remove:
             selected_nodes.append(node)
     return selected_nodes
 
@@ -188,6 +193,7 @@ def check_nodes(
     feat_eval: str = None,
     used: bool = False,
     skip_dups: bool = False,
+    only_used: bool = False,
     locked_nodes: List[str] = None,
 ) -> List[NmNode]:
     """
@@ -202,6 +208,7 @@ def check_nodes(
         feat_eval: The function to use to evaluate the features.
         used: If True, used nodes will also be returned.
         skip_dups: If True, duplicate nodes will be removed.
+        only_used: If True, only the used nodes will be returned.
         locked_nodes: A list of UIDs of nodes that are locked.
 
     Returns:
@@ -210,8 +217,10 @@ def check_nodes(
     features = get_all_features(nodes)
     if not all_nodes:
         nodes = get_nodes_with_state(nodes, connected=not missing)
-    if not used:
-        nodes = remove_used_nodes(nodes, locked_nodes)
+    if only_used:
+        nodes = filter_used_nodes(nodes, locked_nodes, remove=False)
+    elif not used:
+        nodes = filter_used_nodes(nodes, locked_nodes, remove=True)
     if feat_filter:
         nodes = filter_nodes(nodes, feat_filter)
     if feat_eval:
@@ -252,6 +261,9 @@ def check_args(parser: argparse.ArgumentParser):
         "-u", "--used", action="store_true", help="Show used boards as well"
     )
     parser.add_argument(
+        "-o", "--only-used", action="store_true", help="Show only the used boards"
+    )
+    parser.add_argument(
         "-s", "--skip-dups", action="store_true", help="Skip duplicate boards"
     )
 
@@ -264,6 +276,7 @@ def get_filtered_nodes(
     feat_eval: str = None,
     used: bool = False,
     skip_dups: bool = False,
+    only_used: bool = False,
 ) -> List[NmNode]:
     """
     Get a list of nodes based on the provided parameters.
@@ -277,6 +290,7 @@ def get_filtered_nodes(
         feat_eval: The function to use to evaluate the features.
         used: If True, used nodes will also be returned.
         skip_dups: If True, duplicate nodes will be removed.
+        only_used: If True, only the used nodes will be returned.
 
     Returns:
         A list of filtered nodes.
@@ -284,7 +298,15 @@ def get_filtered_nodes(
     nodes = cfg.NodesConfig(config).load()
     locked_nodes = get_locked_uids()
     nodes = check_nodes(
-        nodes, all_nodes, missing, feat_filter, feat_eval, used, skip_dups, locked_nodes
+        nodes,
+        all_nodes,
+        missing,
+        feat_filter,
+        feat_eval,
+        used,
+        skip_dups,
+        only_used,
+        locked_nodes,
     )
     return nodes
 

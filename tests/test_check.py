@@ -6,8 +6,8 @@ from inet_nm.check import (
     check_nodes,
     eval_features,
     filter_nodes,
+    filter_used_nodes,
     get_all_features,
-    remove_used_nodes,
     skip_duplicate_boards,
 )
 from inet_nm.data_types import NmNode
@@ -100,12 +100,17 @@ def test_check_nodes(mock_get_connected_uids, dummy_nodes):
     assert len(nodes) == 3
 
 
-def test_remove_used_nodes(dummy_nodes, locked_nodes):
+def test_filter_used_nodes(dummy_nodes, locked_nodes):
     """Ensure locked nodes are removed from the list of nodes."""
-    nodes = remove_used_nodes(dummy_nodes, locked_nodes)
+    nodes = filter_used_nodes(dummy_nodes, locked_nodes, remove=True)
     assert len(nodes) == 2
     assert nodes[0].serial == "3"
     assert nodes[1].serial == "4"
+
+    nodes = filter_used_nodes(dummy_nodes, locked_nodes, remove=False)
+    assert len(nodes) == 2
+    assert nodes[0].serial == "1"
+    assert nodes[1].serial == "2"
 
 
 def test_eval_features(dummy_nodes):
