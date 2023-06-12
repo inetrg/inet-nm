@@ -194,6 +194,7 @@ def check_nodes(
     used: bool = False,
     skip_dups: bool = False,
     only_used: bool = False,
+    boards: List[str] = None,
     locked_nodes: List[str] = None,
 ) -> List[NmNode]:
     """
@@ -227,6 +228,8 @@ def check_nodes(
         nodes = eval_features(nodes, features, feat_eval)
     if skip_dups:
         nodes = skip_duplicate_boards(nodes)
+    if boards:
+        nodes = [node for node in nodes if node.board in boards]
     # filter out ignored nodes
     nodes = [node for node in nodes if not node.ignore]
     return nodes
@@ -266,6 +269,12 @@ def check_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "-s", "--skip-dups", action="store_true", help="Skip duplicate boards"
     )
+    parser.add_argument(
+        "-b",
+        "--boards",
+        nargs="+",
+        help="Use only the list of boards that match these names",
+    )
 
 
 def get_filtered_nodes(
@@ -277,6 +286,7 @@ def get_filtered_nodes(
     used: bool = False,
     skip_dups: bool = False,
     only_used: bool = False,
+    boards: List[str] = None,
 ) -> List[NmNode]:
     """
     Get a list of nodes based on the provided parameters.
@@ -306,6 +316,7 @@ def get_filtered_nodes(
         used,
         skip_dups,
         only_used,
+        boards,
         locked_nodes,
     )
     return nodes
