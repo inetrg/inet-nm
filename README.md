@@ -308,6 +308,5 @@ OSError: [Errno 9] Bad file descriptor
 - Nice readme with some gifs of usage
 - Add a CLI way and example get the port live based off UID to handle reconnecting within tmux session
 - Improve getting started
-- exec command should exit all threads safely on keyboard interrupt
 - Add a session or exec timeout that will abort if the call takes too long
 - Add tests that go through the cli
