@@ -66,7 +66,10 @@ class FileLock:
         start_time = time.time()
         while True:
             try:
-                self.fd = os.open(self.file_name, os.O_CREAT | os.O_EXCL | os.O_RDWR)
+                os.umask(0)
+                self.fd = os.open(
+                    self.file_name, flags=os.O_CREAT | os.O_EXCL | os.O_RDWR, mode=0o777
+                )
                 self._lock_held = True
                 break
             except FileExistsError:

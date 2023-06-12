@@ -1,4 +1,5 @@
 """This module contains functions for locking nodes."""
+import os
 import tempfile
 from pathlib import Path
 from typing import List
@@ -17,7 +18,8 @@ def locks_dir() -> Path:
         The path to the lock files directory.
     """
     path = Path(tempfile.gettempdir(), "inet_nm", "locks")
-    path.mkdir(parents=True, exist_ok=True)
+    os.umask(0)
+    path.mkdir(parents=True, exist_ok=True, mode=0o777)
     return path
 
 
