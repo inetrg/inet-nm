@@ -64,7 +64,9 @@ Below is the usage for each of the command-line applications included in inet_nm
 
 ### inet-nm-update-from-os
 
-This command is used to cache a list of boards and features.
+This command is used to cache a list of boards and features. The
+default commands are compatible with [RIOT OS](https://www.riot-os.org/) but
+can be overridden for other systems.
 
 ```
 $ inet-nm-update-from-os -h
