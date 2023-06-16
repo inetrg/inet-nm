@@ -4,7 +4,6 @@ This module contains functions for checking the state of the boards.
 This is meant for evaluating inventory.
 """
 import argparse
-import json
 from typing import Dict, List
 
 import pyudev
@@ -336,25 +335,3 @@ def all_features_from_nodes(nodes: List[NmNode]) -> List[str]:
     for node in nodes:
         features.extend(node.features_provided)
     return sorted(list(set(features)))
-
-
-def cli_count_board_inventory():
-    """CLI entrypoint for counting the inventory of boards."""
-    parser = argparse.ArgumentParser(description="Check the state of the boards")
-    cfg.config_arg(parser)
-    check_args(parser)
-    parser.add_argument(
-        "--show-features", action="store_true", help="Shows all features for all boards"
-    )
-    args = parser.parse_args()
-    kwargs = vars(args)
-    show_features = kwargs.pop("show_features")
-
-    nodes = get_filtered_nodes(**kwargs)
-
-    if show_features:
-        info = all_features_from_nodes(nodes)
-    else:
-        info = nodes_to_boards(nodes)
-    out = json.dumps(info, indent=2, sort_keys=True)
-    print(out)

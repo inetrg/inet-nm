@@ -4,7 +4,6 @@ import tempfile
 from pathlib import Path
 from typing import List
 
-from inet_nm._helpers import nm_print
 from inet_nm.data_types import NmNode
 
 
@@ -50,11 +49,4 @@ def get_lock_path(node: NmNode) -> Path:
 def release_all_locks():
     """Release all locks by deleting all lock files."""
     for lock_file in locks_dir().glob("*"):
-        lock_file.unlink()
-
-
-def cli_release_all_locks():
-    """Release all locks by deleting all lock files and print the process."""
-    for lock_file in locks_dir().glob("*"):
-        nm_print(f"Removing lock file {lock_file}")
         lock_file.unlink()

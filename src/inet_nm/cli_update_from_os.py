@@ -34,7 +34,8 @@ def _get_features_provided(
     return (boards, errors)
 
 
-def cli_update_boards_from_os():
+def main():
+    """CLI entrypoint for updating the board info from the OS."""
     parser = argparse.ArgumentParser(description="Cache a list of boards")
     cfg.config_arg(parser)
     parser.add_argument("basedir", type=Path, help="Path to the board path directory")
@@ -82,3 +83,7 @@ def cli_update_boards_from_os():
         nm_print("\nUser aborted")
         sys.exit(2)
     sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
