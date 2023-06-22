@@ -169,6 +169,8 @@ usage: inet-nm-tty-from-uid [-h] [-c CONFIG] uid
 
 ## Example Workflow
 
+Up-to-date examples are available at [`docs/cli-example.md`](docs/cli-example.md).
+
 1. First update the boards list in the cache to allow for autocomplete and
 features.
 ```
