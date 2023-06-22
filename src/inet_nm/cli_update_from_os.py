@@ -26,7 +26,11 @@ def _get_features_provided(
         nm_print(f"Getting features_provided for {bn}")
         env = os.environ.copy()
         env[board_env_var] = bn
-        res = subprocess.run(cmd.split(), cwd=cwd, env=env, capture_output=True)
+        # It seems resolving env vars isn't so easy
+        # As a test requires echo of a board var, let's just resolve it...
+        board_cmd = cmd.replace(f"${{{board_env_var}}}", bn)
+        res = subprocess.run(board_cmd.split(), cwd=cwd, env=env, capture_output=True)
+
         if res.returncode != 0:
             errors.append(bn)
             nm_print(f"FAILED to run {cmd} for {bn}")
