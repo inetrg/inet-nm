@@ -2,6 +2,7 @@
 [run]
 branch = True
 source = inet_nm
+parallel = True
 # omit = bad_file.py
 
 [paths]

@@ -7,4 +7,13 @@
     - https://docs.pytest.org/en/stable/writing_plugins.html
 """
 
-# import pytest
+import pytest
+
+
+def pytest_addoption(parser):
+    parser.addoption("--cli-readme-mock", default=None)
+
+
+@pytest.fixture()
+def cli_readme_mock(request):
+    return request.config.getoption("--cli-readme-mock")
