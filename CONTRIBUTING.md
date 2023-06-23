@@ -109,6 +109,27 @@ source <PATH TO VENV>/bin/activate
    `inet-nm` comes with a lot of hooks configured to automatically help the
    developer to check the code being written.
 
+### Follow the design decisions
+
+#### Naming of CLI modules
+The provided design decision seems to be well-defined and clear. However, I have a couple of suggestions to improve it:
+
+- It would be useful to explain the background context more explicitly, especially if this document is for people not deeply involved in Python coverage or CLI development. For example, clarify what "coverage" is in this context and why it's important.
+- "use only `-` where `_` for the console script name" is somewhat unclear. It would be better to explicitly state the rules for name conversion.
+- The sentence "This allows the automated test to not only use include the console script..." is grammatically incorrect and confusing.
+
+Here's an example of a more detailed, and possibly clearer, design decision:
+
+#### Naming of CLI modules
+
+Coverage testing is a vital aspect of our development cycle, providing insights about which parts of our codebase are exercised during a test run. To support this, Python's `coverage` tool requires the modules to be invoked with a `main` function, since `coverage -m <MODULE>` is supported but specifying a function is not.
+
+In light of this requirement, we propose a naming standard for modules and console scripts. For each console script, we will have a corresponding Python module named `cli_<NAME>.py`. This module will include a `main` function, enabling it to be invoked by the `coverage` tool.
+
+Additionally, we'll define the console scripts in `setup.cfg` with the format `inet-nm-<NAME>`. This name is derived from the module name, but replaces underscores (`_`) with hyphens (`-`). The rationale for this is compatibility with naming standards in command line utilities.
+
+Adhering to this standard allows our automated tests to include the console script execution in the coverage report. Furthermore, it facilitates the generation of usage documentation by establishing a consistent naming pattern for console scripts and their corresponding modules.
+
 ### Implement your changes
 
 1. Create a branch to hold your changes:
