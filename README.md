@@ -64,7 +64,9 @@ Below is the usage for each of the command-line applications included in inet_nm
 
 ### inet-nm-update-from-os
 
-This command is used to cache a list of boards and features.
+This command is used to cache a list of boards and features. The
+default commands are compatible with [RIOT OS](https://www.riot-os.org/) but
+can be overridden for other systems.
 
 ```
 $ inet-nm-update-from-os -h
@@ -167,6 +169,8 @@ usage: inet-nm-tty-from-uid [-h] [-c CONFIG] uid
 
 ## Example Workflow
 
+Up-to-date examples are available at [`docs/cli-example.md`](docs/cli-example.md).
+
 1. First update the boards list in the cache to allow for autocomplete and
 features.
 ```
@@ -261,52 +265,3 @@ This project is licensed under the terms of the MIT license. See the LICENSE fil
 
 ---
 For any questions or contributions, please refer to the issues tab or the contributing guide.
-
-## Roadmap
-
-- Add optional power control
-    - Check if power control available for which boards
-    - Turn all ports on by default whenever checking connection
-    - Turn all unused off commissioned nodes by default once the action is complete
-    - flags to prevent power options
-    - Generic command to turn on all ports or specific nodes
-    - Caching usb locations
-- cleanup exception handling
-  - Removing lock if they have been removed before...
-```
-$ inet-nm-tmux -a
-duplicate session: default
-[exited]
-Traceback (most recent call last):
-  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_cli.py", line 91, in nm_tmux
-    runner.run()
-  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 123, in run
-    self.release()
-  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 85, in release
-    lock.release()
-  File "/home/weiss/wd/inet-nm/src/inet_nm/filelock.py", line 89, in release
-    os.unlink(self.file_name)
-FileNotFoundError: [Errno 2] No such file or directory: '/tmp/inet_nm/locks/e8d68aaf8b4119ca21db0849a8339568.lock'
-
-During handling of the above exception, another exception occurred:
-
-Traceback (most recent call last):
-  File "/home/weiss/wd/inet-nm/.venv/bin/inet-nm-tmux", line 33, in <module>
-    sys.exit(load_entry_point('inet-nm', 'console_scripts', 'inet-nm-tmux')())
-  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_cli.py", line 91, in nm_tmux
-    runner.run()
-  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 130, in __exit__
-    self.release()
-  File "/home/weiss/wd/inet-nm/src/inet_nm/runner_base.py", line 85, in release
-    lock.release()
-  File "/home/weiss/wd/inet-nm/src/inet_nm/filelock.py", line 88, in release
-    os.close(self.fd)
-OSError: [Errno 9] Bad file descriptor
-```
-- remove all or one board
-- allow user boards that will not get overwritten
-- Nice readme with some gifs of usage
-- Add a CLI way and example get the port live based off UID to handle reconnecting within tmux session
-- Improve getting started
-- Add a session or exec timeout that will abort if the call takes too long
-- Add tests that go through the cli

@@ -10,6 +10,7 @@ embedded development kits.
 :maxdepth: 2
 
 Overview <readme>
+Examples <cli-example>
 Contributions & Help <contributing>
 License <license>
 Authors <authors>

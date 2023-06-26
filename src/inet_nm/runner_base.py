@@ -10,6 +10,7 @@ from threading import Thread
 from typing import Dict, List
 
 import inet_nm.locking as lk
+from inet_nm._helpers import nm_print
 from inet_nm.commissioner import TtyNotPresent, get_tty_from_nm_node
 from inet_nm.data_types import NmNode, NodeEnv
 from inet_nm.filelock import FileLock
@@ -82,7 +83,10 @@ class NmNodesRunner:
     def release(self):
         """Release all acquired file locks."""
         for lock in self.locks:
-            lock.release()
+            try:
+                lock.release()
+            except FileNotFoundError:
+                nm_print(f"File {lock.file_name} already unlocked.")
         self._acquired = False
 
     def run(self):
@@ -127,5 +131,6 @@ class NmNodesRunner:
         return self
 
     def __exit__(self, type, value, traceback):
-        self.release()
-        self._acquired = False
+        if self._acquired:
+            self.release()
+            self._acquired = False

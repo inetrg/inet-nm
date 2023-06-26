@@ -26,7 +26,11 @@ def _get_features_provided(
         nm_print(f"Getting features_provided for {bn}")
         env = os.environ.copy()
         env[board_env_var] = bn
-        res = subprocess.run(cmd.split(), cwd=cwd, env=env, capture_output=True)
+        # It seems resolving env vars isn't so easy
+        # As a test requires echo of a board var, let's just resolve it...
+        board_cmd = cmd.replace(f"${{{board_env_var}}}", bn)
+        res = subprocess.run(board_cmd.split(), cwd=cwd, env=env, capture_output=True)
+
         if res.returncode != 0:
             errors.append(bn)
             nm_print(f"FAILED to run {cmd} for {bn}")
@@ -34,7 +38,8 @@ def _get_features_provided(
     return (boards, errors)
 
 
-def cli_update_boards_from_os():
+def main():
+    """CLI entrypoint for updating the board info from the OS."""
     parser = argparse.ArgumentParser(description="Cache a list of boards")
     cfg.config_arg(parser)
     parser.add_argument("basedir", type=Path, help="Path to the board path directory")
@@ -82,3 +87,7 @@ def cli_update_boards_from_os():
         nm_print("\nUser aborted")
         sys.exit(2)
     sys.exit(0)
+
+
+if __name__ == "__main__":
+    main()
