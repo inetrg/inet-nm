@@ -28,16 +28,19 @@ class NmNodesRunner:
     be implemented in the subclass.
     """
 
-    def __init__(self, nodes: List[NmNode], default_timeout: int = None):
+    def __init__(self, nodes: List[NmNode], default_timeout: int = None, seq=False):
         """
         Initialize a new instance of NmNodesRunner.
 
         Args:
             nodes: A list of NmNode instances to be managed.
             default_timeout: Default timeout value for file lock acquisition.
+            seq: If True, operations are run sequentially instead of concurrently.
+
         """
         self.nodes = nodes
         self.default_timeout = default_timeout
+        self.seq = seq
         self.lockable_nodes = [
             (node, FileLock(lk.get_lock_path(node), timeout=default_timeout))
             for node in nodes
@@ -118,7 +121,10 @@ class NmNodesRunner:
 
             thread = Thread(target=self.func, args=(node, idx, node_env))
             thread.start()
-            self.threads.append(thread)
+            if self.seq:
+                thread.join()
+            else:
+                self.threads.append(thread)
 
         for thread in self.threads:
             thread.join()

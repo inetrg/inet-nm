@@ -26,6 +26,11 @@ def main():
         default=None,
         help="Wait until node available in seconds.",
     )
+    parser.add_argument(
+        "--seq",
+        action="store_true",
+        help="Run commands sequentially instead of concurrently",
+    )
 
     cfg.config_arg(parser)
     chk.check_args(parser)
@@ -33,11 +38,12 @@ def main():
     kwargs = vars(args)
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
+    seq = kwargs.pop("seq")
     nodes = nodes = rh.sanity_check("/bin/bash", **kwargs)
     # Somehow allows cleanup to happen...
     signal.signal(signal.SIGHUP, rh.do_nothing)
     try:
-        with apps.NmShellRunner(nodes, default_timeout=timeout) as runner:
+        with apps.NmShellRunner(nodes, default_timeout=timeout, seq=seq) as runner:
             runner.cmd = cmd
             runner.run()
     except KeyboardInterrupt:
