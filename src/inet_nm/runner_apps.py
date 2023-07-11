@@ -32,19 +32,26 @@ class NmShellRunner(NmNodesRunner):
 
     @staticmethod
     def _run_command(cmd, prefix, env):
-        process = subprocess.Popen(
-            cmd, env=env, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
-        )
-        while True:
+        def get_output(process):
             output = process.stdout.readline()
 
             if output:
                 nm_print(f"{prefix}{output.decode().strip()}")
             else:
                 # Have a small sleep so we are not burning CPU waiting for output.
-                time.sleep(0.2)
+                time.sleep(0.1)
+            return output
+
+        process = subprocess.Popen(
+            cmd, env=env, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT
+        )
+        while True:
+            output = get_output(process)
             poll = process.poll()
             if poll is not None:
+                output = True
+                while output:
+                    output = get_output(process)
                 break
         rc = process.returncode
 
