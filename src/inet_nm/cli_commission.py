@@ -49,6 +49,11 @@ def main():
     except ValueError:
         print("No available nodes found")
         sys.exit(1)
+    except cmr.TtyNotPresent as exc:
+        if args.mock_dev:
+            selected_node = nm_nodes[-1]
+        else:
+            raise exc
     if args.ignore:
         selected_node.ignore = True
     else:
