@@ -238,6 +238,27 @@ def test_cli_example(tmpdir, cli_readme_mock):
     )
     assert "NM_BOARD=board_2" in ret
 
+    start_time = time.time()
+    ret = ct.run_step(
+        description="Maybe we want to run a command on all boards sequentially.\n"
+        "We will sleep for an inverse amount of time to show the that they are "
+        "being run sequentially.",
+        cmd="inet-nm-exec",
+        args=[
+            '"sleep 1"',
+            "--missing",
+            "--skip-dups",
+            "--seq",
+            "--boards",
+            "board_1",
+            "board_2",
+            "board_3",
+        ],
+        timeout=5,
+    )
+    end_time = time.time()
+    assert end_time - start_time >= 3
+
     ret = ct.run_step(
         description="There is also some blocking of boards if they are being used, "
         "let's try it out by blocking `board_1` for some time.",
