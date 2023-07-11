@@ -9,7 +9,7 @@ from flaky import flaky
 
 class CliTester:
     DEFAULT_START_WAIT_TIME = 0.2
-    DEFAULT_PROCESS_TIMEOUT = 1
+    DEFAULT_PROCESS_TIMEOUT = 2
     title = None
     footer = None
     description = None
