@@ -49,7 +49,7 @@ class CliTester:
                 (description, f"{cmd} {' '.join(args or [])}", "")
             )
             return ""
-        output = child.read().decode()
+        output = child.read().decode().replace("\r\n", "\n")
         self._step_results.append(
             (description, f"{cmd} {' '.join(args or [])}", output)
         )
