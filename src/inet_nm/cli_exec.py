@@ -39,7 +39,7 @@ def main():
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
     seq = kwargs.pop("seq")
-    nodes = nodes = rh.sanity_check("/bin/bash", **kwargs)
+    nodes = rh.sanity_check("/bin/bash", **kwargs)
     # Somehow allows cleanup to happen...
     signal.signal(signal.SIGHUP, rh.do_nothing)
     try:
