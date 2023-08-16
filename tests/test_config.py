@@ -1,7 +1,7 @@
 import pytest
 
 import inet_nm.config as cfg
-from inet_nm.data_types import NmNode
+from inet_nm.data_types import EnvConfigFormat, NmNode
 
 
 @pytest.mark.parametrize(
@@ -23,6 +23,14 @@ from inet_nm.data_types import NmNode
                 )
             ],
         ),
+        (
+            cfg.EnvConfig,
+            EnvConfigFormat(
+                patterns=[{"board": {"board_key": "board_val"}}],
+                nodes={"node": {"node_key": "node_val"}},
+                shared={"shared_val": "shared_val"},
+            ),
+        ),
     ],
 )
 def test_save_load_config(tmp_path, params):
@@ -35,5 +43,11 @@ def test_save_load_config(tmp_path, params):
     assert loaded_data == data
 
     res = cfg_type("does_not_exist").load()
-    assert len(res) == 0
+    if isinstance(res, EnvConfigFormat):
+        assert len(res.patterns) == 0
+        assert len(res.nodes) == 0
+        assert len(res.shared) == 0
+    else:
+        assert len(res) == 0
+
     assert isinstance(res, cfg_type._LOAD_TYPE)

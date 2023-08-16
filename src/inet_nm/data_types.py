@@ -86,6 +86,22 @@ class NmNode(DictSerializable):
 
 
 @dataclass
+class EnvConfigFormat(DictSerializable):
+    """
+    A representation of the environment configuration file.
+
+    Attributes:
+        shared: Shared environment variables.
+        nodes: Environment variables for each node.
+        patterns: List of patterns to match against the environment variables.
+    """
+
+    shared: Dict[str, str]
+    nodes: Dict[str, Dict[str, str]]
+    patterns: List[Dict]
+
+
+@dataclass
 class NodeEnv(DictSerializable):
     """
     Environment variables for a node.

@@ -2,6 +2,7 @@ import subprocess
 import sys
 
 import inet_nm.check as chk
+import inet_nm.config as cfg
 
 
 def _is_command_available(cmd):
@@ -19,6 +20,29 @@ def _check_filtered_nodes(**kwargs):
         print("No available nodes!")
         sys.exit(1)
     return nodes
+
+
+def node_env_vars(config: str):
+    env_cfg = cfg.EnvConfig(config)
+    env_cfg.check_file(writable=False)
+    env_info = env_cfg.load()
+    pattern_nodes = {}
+    for pattern in env_info.patterns:
+        pattern["config"] = config
+        env_key = pattern.pop("key")
+        env_val = pattern.pop("val")
+        matched_nodes = chk.get_filtered_nodes(all_nodes=True, **pattern)
+        for node in matched_nodes:
+            if node.uid not in pattern_nodes:
+                pattern_nodes[node.uid] = {}
+            pattern_nodes[node.uid][env_key] = env_val
+    for uid, env in env_info.nodes.items():
+        for key, val in env.items():
+            if uid not in pattern_nodes:
+                pattern_nodes[uid] = {}
+            pattern_nodes[uid][key] = val
+    env_info.nodes = pattern_nodes
+    return env_info
 
 
 def sanity_check(cmd, **kwargs):

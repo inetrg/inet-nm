@@ -12,7 +12,7 @@ from typing import Dict, List
 import inet_nm.locking as lk
 from inet_nm._helpers import nm_print
 from inet_nm.commissioner import TtyNotPresent, get_tty_from_nm_node
-from inet_nm.data_types import NmNode, NodeEnv
+from inet_nm.data_types import EnvConfigFormat, NmNode, NodeEnv
 from inet_nm.filelock import FileLock
 
 
@@ -28,7 +28,13 @@ class NmNodesRunner:
     be implemented in the subclass.
     """
 
-    def __init__(self, nodes: List[NmNode], default_timeout: int = None, seq=False):
+    def __init__(
+        self,
+        nodes: List[NmNode],
+        default_timeout: int = None,
+        seq=False,
+        extra_env: EnvConfigFormat = None,
+    ):
         """
         Initialize a new instance of NmNodesRunner.
 
@@ -36,11 +42,14 @@ class NmNodesRunner:
             nodes: A list of NmNode instances to be managed.
             default_timeout: Default timeout value for file lock acquisition.
             seq: If True, operations are run sequentially instead of concurrently.
+            extra_env: A dictionary of extra environment variables to be passed
+                to the operation function.
 
         """
         self.nodes = nodes
         self.default_timeout = default_timeout
         self.seq = seq
+        self.extra_env = extra_env or EnvConfigFormat(shared={}, nodes={}, patterns=[])
         self.lockable_nodes = [
             (node, FileLock(lk.get_lock_path(node), timeout=default_timeout))
             for node in nodes
@@ -118,6 +127,8 @@ class NmNodesRunner:
                 NM_BOARD=node.board,
                 NM_PORT=nm_port,
             ).to_dict()
+            node_env.update(self.extra_env.shared)
+            node_env.update(self.extra_env.nodes.get(node.uid, {}))
 
             thread = Thread(target=self.func, args=(node, idx, node_env))
             thread.start()

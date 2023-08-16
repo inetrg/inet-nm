@@ -40,10 +40,14 @@ def main():
     cmd = kwargs.pop("cmd")
     seq = kwargs.pop("seq")
     nodes = rh.sanity_check("/bin/bash", **kwargs)
+
+    extra_env = rh.node_env_vars(args.config)
     # Somehow allows cleanup to happen...
     signal.signal(signal.SIGHUP, rh.do_nothing)
     try:
-        with apps.NmShellRunner(nodes, default_timeout=timeout, seq=seq) as runner:
+        with apps.NmShellRunner(
+            nodes, default_timeout=timeout, seq=seq, extra_env=extra_env
+        ) as runner:
             runner.cmd = cmd
             runner.run()
     except KeyboardInterrupt:

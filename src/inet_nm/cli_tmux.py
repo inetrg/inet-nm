@@ -54,6 +54,8 @@ def main():
     cmd = kwargs.pop("cmd")
     sname = kwargs.pop("session_name")
     nodes = rh.sanity_check("tmux", **kwargs)
+
+    extra_env = rh.node_env_vars(args.config)
     signal.signal(signal.SIGINT, lambda x, y: _kill_tmux(sname))
 
     # This is a hack to keep the process alive long enough
@@ -62,12 +64,16 @@ def main():
     # the lockfiles will be removed...
     signal.signal(signal.SIGHUP, rh.do_nothing)
     if window:
-        with apps.NmTmuxWindowedRunner(nodes, default_timeout=timeout) as runner:
+        with apps.NmTmuxWindowedRunner(
+            nodes, default_timeout=timeout, extra_env=extra_env
+        ) as runner:
             runner.cmd = cmd
             runner.session_name = sname
             runner.run()
     else:
-        with apps.NmTmuxPanedRunner(nodes, default_timeout=timeout) as runner:
+        with apps.NmTmuxPanedRunner(
+            nodes, default_timeout=timeout, extra_env=extra_env
+        ) as runner:
             runner.cmd = cmd
             runner.session_name = sname
             runner.run()

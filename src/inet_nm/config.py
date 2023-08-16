@@ -10,7 +10,7 @@ import os
 from pathlib import Path
 from typing import Dict, List, Union
 
-from inet_nm.data_types import NmNode
+from inet_nm.data_types import EnvConfigFormat, NmNode
 
 
 class _ConfigFile:
@@ -130,6 +130,47 @@ class NodesConfig(_ConfigFile):
         """
         data = super().load()
         return [NmNode.from_dict(item) for item in data]
+
+
+class EnvConfig(_ConfigFile):
+    """Class for handling the environment configuration.
+
+    The env configuration is a JSON file containing a env vars.
+
+    The env configuration file is located in the config directory
+    and is named env.json.
+
+    Args:
+        config_dir: Directory for the configuration files.
+
+    Attributes:
+        file_path (Path): Path to the env configuration file.
+    """
+
+    _FILENAME = "env.json"
+    _LOAD_TYPE = EnvConfigFormat
+
+    def save(self, data: EnvConfigFormat):
+        """Save the env configuration.
+
+        Args:
+            data: The env data to save.
+        """
+        return super().save(data.to_dict())
+
+    def load(self) -> EnvConfigFormat:
+        """Load the env configuration.
+
+        Returns:
+            The loaded env data.
+        """
+        empty = EnvConfigFormat(nodes={}, patterns=[], shared={})
+        if not self.check_file(writable=False):
+            return empty
+        data = super().load()
+        if not data:
+            return empty
+        return EnvConfigFormat.from_dict(data)
 
 
 def get_default_path() -> Path:

@@ -263,7 +263,7 @@ def test_cli_example(tmpdir, cli_readme_mock):
         description="There is also some blocking of boards if they are being used, "
         "let's try it out by blocking `board_1` for some time.",
         cmd="inet-nm-exec",
-        args=['"sleep 0.5"', "--missing", "--skip-dups", "--boards", "board_1"],
+        args=['"sleep 1"', "--missing", "--skip-dups", "--boards", "board_1"],
         timeout=2,
         skip_read=True,
     )
@@ -366,6 +366,72 @@ def test_cli_example(tmpdir, cli_readme_mock):
     )
 
     assert "board_3" in ret
+
+    ct.run_step(
+        description="The default environment is namespaced with `NM_` but how "
+        "about being able to setup a custom environment... "
+        "Well, we can do that too! Let's start with just adding an "
+        "env variable to all node environments. "
+        "This will apply to all commissioned nodes and any future "
+        "commissioned nodes. "
+        "Take special note of the escape characters and brackets. "
+        "Just something like `\\$VAR` will not work, `\\${VAR}` is needed.",
+        cmd="inet-nm-export",
+        args=["MY_CUSTOM_BOARD_ENV_VAR", "\\\\${NM_BOARD}", "--apply-to-shared"],
+    )
+
+    ct.run_step(
+        description="Apply a pattern to select only some boards or features.",
+        cmd="inet-nm-export",
+        args=[
+            "MY_CUSTOM_SETTING",
+            "1",
+            "--apply-pattern",
+            "--missing",
+            "--feat-filter",
+            "feature_board_3",
+        ],
+    )
+
+    ct.run_step(
+        description="The pattern has higher priority than the shared env vars. "
+        "Let's overwrite the shared variable for board 2",
+        cmd="inet-nm-export",
+        args=[
+            "MY_CUSTOM_BOARD_ENV_VAR",
+            "board_2",
+            "--apply-pattern",
+            "--missing",
+            "--boards",
+            "board_2",
+        ],
+    )
+
+    ct.run_step(
+        description="Finally we can apply env vars to specific nodes. "
+        "This is based on the UID, therefor commissioning new nodes will not "
+        "contain these env vars. This has the highest priority.",
+        cmd="inet-nm-export",
+        args=[
+            "MY_CUSTOM_NODE_HAS_SPECIAL_HARDWARE_FLAG",
+            "1",
+            "--missing",
+            "--boards",
+            "board_1",
+            "--skip-dups",
+        ],
+    )
+
+    ret = ct.run_step(
+        description="Now we can check each environment.",
+        cmd="inet-nm-exec",
+        args=['"printenv | grep MY_CUSTOM"', "--missing"],
+    )
+
+    assert ret.count("board_1: MY_CUSTOM_NODE_HAS_SPECIAL_HARDWARE_FLAG") == 1
+    assert ret.count("board_3: MY_CUSTOM_SETTING") == 1
+    assert ret.count("MY_CUSTOM_BOARD_ENV_VAR") == 4
+    assert ret.count("MY_CUSTOM_BOARD_ENV_VAR=board_2") == 1
 
     if cli_readme_mock:
         with open(cli_readme_mock, "w") as f:
