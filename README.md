@@ -1,7 +1,7 @@
 [![CI Tests](https://github.com/inetrg/inet-nm/actions/workflows/ci.yml/badge.svg)](https://github.com/inetrg/inet-nm/actions/workflows/ci.yml)
 [![ReadTheDocs](https://readthedocs.org/projects/inet-nm/badge/?version=latest)](https://inet-nm.readthedocs.io/en/stable/)
 [![PyPI-Server](https://img.shields.io/pypi/v/inet-nm.svg)](https://pypi.org/project/inet-nm/)
-[![Monthly Downloads](https://pepy.tech/badge/inet-nm/month)](https://pepy.tech/project/inet-nm)
+[![Monthly Downloads](https://static.pepy.tech/badge/inet-nm/month)](https://pepy.tech/project/inet-nm)
 
 # inet_nm - INET Node Manager
 
