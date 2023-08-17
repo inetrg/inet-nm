@@ -1,3 +1,4 @@
+import json
 import os
 import sys
 import time
@@ -67,7 +68,7 @@ class CliTester:
             out += f"```bash\n$ {cmd}\n"
             out += f"{output}```\n\n"
         if self.footer:
-            out += f"{self.footer}\n\n"
+            out += f"{self.footer}\n"
         return out
 
 
@@ -432,6 +433,29 @@ def test_cli_example(tmpdir, cli_readme_mock):
     assert ret.count("board_3: MY_CUSTOM_SETTING") == 1
     assert ret.count("MY_CUSTOM_BOARD_ENV_VAR") == 4
     assert ret.count("MY_CUSTOM_BOARD_ENV_VAR=board_2") == 1
+
+    ct.run_step(
+        description="Let's say I want to check the state of my boards. "
+        "I can see a nice table of what is available, used, and missing.",
+        cmd="inet-nm-inventory",
+    )
+
+    ret = ct.run_step(
+        description="We can also get that in a machine readable way.",
+        cmd="inet-nm-inventory",
+        args=["--json"],
+    )
+
+    res = json.loads(ret)
+
+    assert res[0]["board"] == "board_1"
+    assert res[0]["available"] == 0
+    assert res[0]["used"] == 0
+    assert res[0]["missing"] == 2
+    assert res[0]["total"] == 2
+
+    assert res[1]["board"] == "board_2"
+    assert res[2]["board"] == "board_3"
 
     if cli_readme_mock:
         with open(cli_readme_mock, "w") as f:

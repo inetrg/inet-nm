@@ -13,58 +13,56 @@ $ inet-nm-update-from-os . --board-info "echo board_1 board_2" --board-features 
 Getting features_provided for board_1
 Getting features_provided for board_2
 
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/board_info.json
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/board_info.json
 ```
 
 1. Now we can add a board using the wizard. We can just add a mock device for now and for this example.
 ```bash
 $ inet-nm-commission --mock-dev
-
-Found 0 saved nodes in /tmp/pytest-of-weiss/pytest-14/test_cli_example0
-Enter serial number [43190210341183772271]:
+Found 0 saved nodes in /tmp/pytest-of-weiss/pytest-5/test_cli_example0
+Enter serial number [68378266499947448987]:
+board_1
 Select board name for generic_vendor
 > board_1
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/nodes.json
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/nodes.json
 ```
 
 2. Let's do it again so we have 2 `board_1` boards.
 ```bash
 $ inet-nm-commission --mock-dev
-
+Found 1 saved nodes in /tmp/pytest-of-weiss/pytest-5/test_cli_example0
+Enter serial number [02292275306556290432]:
 board_1
-Found 1 saved nodes in /tmp/pytest-of-weiss/pytest-14/test_cli_example0
-Enter serial number [02807064577242520563]:
 Select board name for generic_vendor
 > board_1
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/nodes.json
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/nodes.json
 ```
 
 3. We can also add the board with directly with the cli args.
 ```bash
 $ inet-nm-commission --mock-dev --board board_2
-
-Found 2 saved nodes in /tmp/pytest-of-weiss/pytest-14/test_cli_example0
-Enter serial number [38177405136834385679]:
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/nodes.json
+Found 2 saved nodes in /tmp/pytest-of-weiss/pytest-5/test_cli_example0
+Enter serial number [53501089861140397880]:
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/nodes.json
 ```
 
 4. If we add a board that is not in our `board_info` list, we will need to confirm it is correct.
 ```bash
 $ inet-nm-commission --mock-dev
-Found 3 saved nodes in /tmp/pytest-of-weiss/pytest-14/test_cli_example0
-Enter serial number [45405871127408525688]:
+Found 3 saved nodes in /tmp/pytest-of-weiss/pytest-5/test_cli_example0
+Enter serial number [38033817949869448782]:
 Select board name for generic_vendor
 > board_3
 Board board_3 not in board list, continue? [y/N] Y
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/nodes.json
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/nodes.json
 ```
 
 5. If we have a device showing up on the list that should not be commissioned, we can ignore it.  This will prevent accidentally commissioning it in the future and will not be selectable by this tool.
 ```bash
 $ inet-nm-commission --mock-dev --ignore
-Found 4 saved nodes in /tmp/pytest-of-weiss/pytest-14/test_cli_example0
-Enter serial number [65026266254893701960]:
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/nodes.json
+Found 4 saved nodes in /tmp/pytest-of-weiss/pytest-5/test_cli_example0
+Enter serial number [13638471407267323877]:
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/nodes.json
 ```
 
 6. Let's see what we have, since these are mocked devices we the will never be connected, so we should always check missing boards.
@@ -142,9 +140,9 @@ NODE:2:BOARD:board_3: 2
 ```bash
 $ inet-nm-exec "printenv | grep NM_" --missing --boards board_2
 NODE:0:BOARD:board_2: NM_BOARD=board_2
-NODE:0:BOARD:board_2: NM_CONFIG_DIR=/tmp/pytest-of-weiss/pytest-14/test_cli_example0
-NODE:0:BOARD:board_2: NM_SERIAL=38177405136834385679
-NODE:0:BOARD:board_2: NM_UID=783e6d149b761089aaef00431149715b
+NODE:0:BOARD:board_2: NM_CONFIG_DIR=/tmp/pytest-of-weiss/pytest-5/test_cli_example0
+NODE:0:BOARD:board_2: NM_SERIAL=53501089861140397880
+NODE:0:BOARD:board_2: NM_UID=7c740cc754d112ea98d9ff8099d389e7
 NODE:0:BOARD:board_2: NM_PORT=Unknown
 NODE:0:BOARD:board_2: NM_IDX=0
 ```
@@ -157,7 +155,7 @@ $ inet-nm-exec "sleep 1" --missing --skip-dups --seq --boards board_1 board_2 bo
 
 16. There is also some blocking of boards if they are being used, let's try it out by blocking `board_1` for some time.
 ```bash
-$ inet-nm-exec "sleep 0.5" --missing --skip-dups --boards board_1
+$ inet-nm-exec "sleep 1" --missing --skip-dups --boards board_1
 ```
 
 17. Before the command finishes, in a different terminal, we can check to see what is available to us, notice we will be missing one of the `board_1` boards.
@@ -213,10 +211,10 @@ $ inet-nm-check --missing --only-used
 ```bash
 $ inet-nm-free
 Releasing all locks
-Removing lock file /tmp/inet_nm/locks/8e4bce9da919575fc961402178766025.lock
-Removing lock file /tmp/inet_nm/locks/783e6d149b761089aaef00431149715b.lock
-Removing lock file /tmp/inet_nm/locks/d6329329ffa003dbffe88ac2663716cf.lock
-Removing lock file /tmp/inet_nm/locks/7bd84abe9331a30a8fe1db0ef8695ef8.lock
+Removing lock file /tmp/inet_nm/locks/7c740cc754d112ea98d9ff8099d389e7.lock
+Removing lock file /tmp/inet_nm/locks/735aeda7849fcba12991f607f0ed84fd.lock
+Removing lock file /tmp/inet_nm/locks/e41a9d16bf84cb7819726dbaa3e3e021.lock
+Removing lock file /tmp/inet_nm/locks/ed808cc451d7642f13b06dc12b10f665.lock
 All locks released
 ```
 
@@ -237,13 +235,13 @@ Getting features_provided for board_1
 Getting features_provided for board_2
 Getting features_provided for board_3
 
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/board_info.json
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/board_info.json
 ```
 
 26. Well we can updated the nodes cache in a separate step, no need to re-commission.
 ```bash
 $ inet-nm-update-commissioned
-Updated /tmp/pytest-of-weiss/pytest-14/test_cli_example0/nodes.json
+Updated /tmp/pytest-of-weiss/pytest-5/test_cli_example0/nodes.json
 ```
 
 27. Now we can see the new feature and board is available.
@@ -258,32 +256,79 @@ $ inet-nm-check --missing --feat-filter feature_board_3
 ```bash
 $ inet-nm-export MY_CUSTOM_BOARD_ENV_VAR \\${NM_BOARD} --apply-to-shared
 Added MY_CUSTOM_BOARD_ENV_VAR=\${NM_BOARD} to shared env vars
-Written to /tmp/pytest-of-weiss/pytest-14/test_cli_example0/env.json
+Written to /tmp/pytest-of-weiss/pytest-5/test_cli_example0/env.json
 ```
 
-29. We can also do it only for specific board names, for example, if debugger settings or toolchain info is needed. In this case, we can filter as we wish and it will only take matching boards or features.
+29. Apply a pattern to select only some boards or features.
 ```bash
-$ inet-nm-export MY_CUSTOM_SETTING 1 --apply-to-boards --missing --feat-filter feature_board_3
-Added MY_CUSTOM_SETTING=1 to env vars for boards {'board_3'}
-Written to /tmp/pytest-of-weiss/pytest-14/test_cli_example0/env.json
+$ inet-nm-export MY_CUSTOM_SETTING 1 --apply-pattern --missing --feat-filter feature_board_3
+Added patterns: {'key': 'MY_CUSTOM_SETTING', 'val': '1', 'boards': None, 'feat_filter': ['feature_board_3'], 'feat_eval': None}
+Written to /tmp/pytest-of-weiss/pytest-5/test_cli_example0/env.json
 ```
 
-30. Finally we can apply env vars to specific nodes. This is based on the UID, therefor commissioning new nodes will not contain these env vars.
+30. The pattern has higher priority than the shared env vars. Let's overwrite the shared variable for board 2
+```bash
+$ inet-nm-export MY_CUSTOM_BOARD_ENV_VAR board_2 --apply-pattern --missing --boards board_2
+Added patterns: {'key': 'MY_CUSTOM_BOARD_ENV_VAR', 'val': 'board_2', 'boards': ['board_2'], 'feat_filter': None, 'feat_eval': None}
+Written to /tmp/pytest-of-weiss/pytest-5/test_cli_example0/env.json
+```
+
+31. Finally we can apply env vars to specific nodes. This is based on the UID, therefor commissioning new nodes will not contain these env vars. This has the highest priority.
 ```bash
 $ inet-nm-export MY_CUSTOM_NODE_HAS_SPECIAL_HARDWARE_FLAG 1 --missing --boards board_1 --skip-dups
-Added MY_CUSTOM_NODE_HAS_SPECIAL_HARDWARE_FLAG=1 to env vars for nodes {'8e4bce9da919575fc961402178766025'}
-Written to /tmp/pytest-of-weiss/pytest-14/test_cli_example0/env.json
+Added MY_CUSTOM_NODE_HAS_SPECIAL_HARDWARE_FLAG=1 to env vars for nodes {'e41a9d16bf84cb7819726dbaa3e3e021'}
+Written to /tmp/pytest-of-weiss/pytest-5/test_cli_example0/env.json
 ```
 
-31. Now we can check each environment.
+32. Now we can check each environment.
 ```bash
 $ inet-nm-exec "printenv | grep MY_CUSTOM" --missing
 NODE:0:BOARD:board_1: MY_CUSTOM_BOARD_ENV_VAR=\${NM_BOARD}
 NODE:0:BOARD:board_1: MY_CUSTOM_NODE_HAS_SPECIAL_HARDWARE_FLAG=1
 NODE:1:BOARD:board_1: MY_CUSTOM_BOARD_ENV_VAR=\${NM_BOARD}
-NODE:2:BOARD:board_2: MY_CUSTOM_BOARD_ENV_VAR=\${NM_BOARD}
+NODE:2:BOARD:board_2: MY_CUSTOM_BOARD_ENV_VAR=board_2
 NODE:3:BOARD:board_3: MY_CUSTOM_SETTING=1
 NODE:3:BOARD:board_3: MY_CUSTOM_BOARD_ENV_VAR=\${NM_BOARD}
+```
+
+33. Let's say I want to check the state of my boards. I can see a nice table of what is available, used, and missing.
+```bash
+$ inet-nm-inventory
+-----------------------------------------------------------
+| Board   | Available | Used      | Missing   | Total     |
+-----------------------------------------------------------
+| board_1 |         0 |         0 |         2 |         2 |
+| board_2 |         0 |         0 |         1 |         1 |
+| board_3 |         0 |         0 |         1 |         1 |
+-----------------------------------------------------------
+```
+
+34. We can also get that in a machine readable way.
+```bash
+$ inet-nm-inventory --json
+[
+  {
+    "available": 0,
+    "board": "board_1",
+    "missing": 2,
+    "total": 2,
+    "used": 0
+  },
+  {
+    "available": 0,
+    "board": "board_2",
+    "missing": 1,
+    "total": 1,
+    "used": 0
+  },
+  {
+    "available": 0,
+    "board": "board_3",
+    "missing": 1,
+    "total": 1,
+    "used": 0
+  }
+]
 ```
 
 That was the example to show off and test most of the features.

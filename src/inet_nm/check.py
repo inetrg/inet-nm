@@ -4,7 +4,7 @@ This module contains functions for checking the state of the boards.
 This is meant for evaluating inventory.
 """
 import argparse
-from typing import Dict, List
+from typing import Dict, List, Tuple
 
 import pyudev
 
@@ -234,6 +234,24 @@ def check_nodes(
     return nodes
 
 
+def check_filter_args(parser: argparse.ArgumentParser):
+    parser.add_argument(
+        "-f",
+        "--feat-filter",
+        nargs="+",
+        help="Filter all boards that don't provide these features",
+    )
+    parser.add_argument(
+        "-e", "--feat-eval", type=str, help="Evaluate features with this function"
+    )
+    parser.add_argument(
+        "-b",
+        "--boards",
+        nargs="+",
+        help="Use only the list of boards that match these names",
+    )
+
+
 def check_args(parser: argparse.ArgumentParser):
     """
     Define the arguments for the argparse parser.
@@ -241,12 +259,7 @@ def check_args(parser: argparse.ArgumentParser):
     Args:
         parser: The argparse parser.
     """
-    parser.add_argument(
-        "-f",
-        "--feat-filter",
-        nargs="+",
-        help="Filter all boards that don't provide these features",
-    )
+
     parser.add_argument(
         "-a",
         "--all-nodes",
@@ -257,9 +270,6 @@ def check_args(parser: argparse.ArgumentParser):
         "-m", "--missing", action="store_true", help="Show all missing boards"
     )
     parser.add_argument(
-        "-e", "--feat-eval", type=str, help="Evaluate features with this function"
-    )
-    parser.add_argument(
         "-u", "--used", action="store_true", help="Show used boards as well"
     )
     parser.add_argument(
@@ -268,12 +278,37 @@ def check_args(parser: argparse.ArgumentParser):
     parser.add_argument(
         "-s", "--skip-dups", action="store_true", help="Skip duplicate boards"
     )
-    parser.add_argument(
-        "-b",
-        "--boards",
-        nargs="+",
-        help="Use only the list of boards that match these names",
-    )
+    check_filter_args(parser)
+
+
+def get_inventory_nodes(
+    config: str,
+    feat_filter: List[str] = None,
+    feat_eval: str = None,
+    boards: List[str] = None,
+) -> Tuple[List[NmNode], List[NmNode], List[NmNode]]:
+    """
+    Get a list of nodes based on the provided parameters.
+
+    Args:
+        config: The configuration path for the nodes.
+        feat_filter: A list of features. Only the nodes that contain all of
+            these features will be returned.
+        feat_eval: The function to use to evaluate the features.
+        boards: A list of boards to use.
+
+    Returns:
+        A tuple of lists of nodes. The first list is the available nodes, the
+            second list is the used nodes, and the third list is the missing
+            nodes.
+    """
+
+    kwargs = locals()
+    available = get_filtered_nodes(**kwargs)
+    used = get_filtered_nodes(only_used=True, **kwargs)
+    missing = get_filtered_nodes(missing=True, **kwargs)
+    total = get_filtered_nodes(all_nodes=True, used=True, **kwargs)
+    return available, used, missing, total
 
 
 def get_filtered_nodes(
