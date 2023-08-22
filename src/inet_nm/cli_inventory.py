@@ -50,6 +50,10 @@ def main():
         print("-" * len(full_str))
         print(full_str)
         print("-" * len(full_str))
+        avail_count = 0
+        used_count = 0
+        missing_count = 0
+        total_count = 0
         for i in info:
             brd_str = f"| {i['board']:<{max_board_len + 1}}"
             avl_str = f"| {i['available']:>9} "
@@ -58,6 +62,19 @@ def main():
             tot_str = f"| {i['total']:>9} |"
             full_str = brd_str + avl_str + use_str + mis_str + tot_str
             print(full_str)
+
+            avail_count += i["available"]
+            used_count += i["used"]
+            missing_count += i["missing"]
+            total_count += i["total"]
+        print("-" * len(full_str))
+        brd_str = "| " + " " * (max_board_len + 1)
+        avl_str = f"| {avail_count:>9} "
+        use_str = f"| {used_count:>9} "
+        mis_str = f"| {missing_count:>9} "
+        tot_str = f"| {total_count:>9} |"
+        full_str = brd_str + avl_str + use_str + mis_str + tot_str
+        print(full_str)
         print("-" * len(full_str))
 
 
