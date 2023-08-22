@@ -60,10 +60,32 @@ def get_tty_from_nm_node(nm_node: NmNode) -> str:
     Raises:
         TtyNotPresent: If a TTY device could not be found for the given NmNode.
     """
+    ttys = get_ttys_from_nm_node(nm_node)
+    if ttys:
+        return ttys[0]
+
+    raise TtyNotPresent(f"Could not find tty device for {nm_node}")
+
+
+def get_ttys_from_nm_node(nm_node: NmNode) -> List[str]:
+    """
+    Retrieve the TTY device node string for a given NmNode.
+
+    Args:
+        nm_node: An NmNode object.
+
+    Returns:
+        The TTY device node string.
+
+    Raises:
+        TtyNotPresent: If a TTY device could not be found for the given NmNode.
+    """
     context = pyudev.Context()
     vendor_id = nm_node.vendor_id
     model_id = nm_node.product_id
     serial_short = nm_node.serial
+
+    ttys = []
 
     for device in context.list_devices(subsystem="tty"):
         parent = device.find_parent("usb", "usb_device")
@@ -74,9 +96,8 @@ def get_tty_from_nm_node(nm_node: NmNode) -> str:
             and parent.get("ID_MODEL_ID") == model_id
             and parent.get("ID_SERIAL_SHORT") == serial_short
         ):
-            return device.device_node
-
-    raise TtyNotPresent(f"Could not find tty device for {nm_node}")
+            ttys.append(device.device_node)
+    return ttys
 
 
 def select_available_node(nodes: List[NmNode]) -> NmNode:
@@ -90,11 +111,17 @@ def select_available_node(nodes: List[NmNode]) -> NmNode:
         The selected NmNode.
     """
 
+    uids = list()
+
     def _nice_node(node: NmNode):
-        msg = f"{get_tty_from_nm_node(node)} {node.vendor}"
+        nonlocal uids
+        ttys = get_ttys_from_nm_node(node)
+        tty = ttys[uids.count(node.uid)]
+        msg = f"{tty} {node.vendor}"
         if node.model:
             msg += f" {node.model}"
         msg += f" {node.serial}"
+        uids.append(node.uid)
         return msg
 
     return nm_prompt_choice("Select the node", nodes, _nice_node)

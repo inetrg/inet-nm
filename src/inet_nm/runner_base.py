@@ -11,7 +11,7 @@ from typing import Dict, List
 
 import inet_nm.locking as lk
 from inet_nm._helpers import nm_print
-from inet_nm.commissioner import TtyNotPresent, get_tty_from_nm_node
+from inet_nm.commissioner import get_ttys_from_nm_node
 from inet_nm.data_types import EnvConfigFormat, NmNode, NodeEnv
 from inet_nm.filelock import FileLock
 
@@ -124,9 +124,10 @@ class NmNodesRunner:
 
         self.threads = []
         for idx, node in enumerate(self.nodes):
-            try:
-                nm_port = get_tty_from_nm_node(node)
-            except TtyNotPresent:
+            ttys = get_ttys_from_nm_node(node)
+            if ttys:
+                nm_port = ttys[0]
+            else:
                 nm_port = "Unknown"
             node_env = NodeEnv(
                 NM_IDX=idx,
@@ -135,6 +136,10 @@ class NmNodesRunner:
                 NM_BOARD=node.board,
                 NM_PORT=nm_port,
             ).to_dict()
+
+            # Inject multiple ttys values if available
+            for i, tty in enumerate(ttys):
+                node_env[f"NM_PORT_{i}"] = tty
             node_env.update(self.extra_env.shared)
             node_env.update(self.extra_env.nodes.get(node.uid, {}))
 
