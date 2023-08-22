@@ -73,7 +73,9 @@ class FileLock:
                 self._lock_held = True
                 break
             except FileExistsError:
-                if time.time() - start_time >= timeout:
+                if timeout is None:
+                    time.sleep(poll_interval)
+                elif time.time() - start_time >= timeout:
                     msg = f"Timeout trying to lock {self.file_name}"
                     raise FileLockTimeout(msg)
                 else:
