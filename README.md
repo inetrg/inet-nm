@@ -259,6 +259,51 @@ NODE:3:BOARD:esp32-wroom-32: NM_BOARD=esp32-wroom-32
 NODE:4:BOARD:b-l072z-lrwan1: NM_BOARD=b-l072z-lrwan1
 ```
 
+## FAQs
+
+### What is the limit to the amount of USB devices I can have at a single time?
+
+The maximum number of USB devices you can connect to a system is influenced by
+several factors:
+
+1. **USB Standard Limit**: USB architecture technically supports up to 127
+devices, including hubs and the host controller.
+
+2. **USB Endpoints**: Each USB device communicates using "endpoints," and
+there's a limit to how many can be addressed by a single USB controller.
+Devices can use multiple endpoints, so reaching the endpoint limit might occur
+before hitting the 127-device limit.
+
+3. **Bandwidth**: USB controllers have finite bandwidth. High-throughput
+devices like webcams or external hard drives consume more bandwidth than
+simpler devices like keyboards. Overloading bandwidth can prevent device recognition.
+
+4. **Power Constraints**: USB ports deliver power. Connecting many devices,
+especially without externally powered hubs, can exceed the power supply
+capability, leading to malfunctions.
+
+5. **Kernel Configuration**: Linux kernels have parameters determining how
+many USB devices they handle. Default settings might limit the number of
+usable devices.
+
+6. **Driver Conflicts**: Device drivers can sometimes conflict or not handle
+a large number of connected devices gracefully.
+
+7. **Hardware Limitations**: Motherboards and USB controllers have
+design constraints. High-end boards might support more devices than budget ones.
+
+In practice, while the USB standard allows many devices, real-world
+constraints like power, bandwidth, and hardware often reduce this number.
+
+We recommend using powered USB hubs.
+
+We also found that the development kits use around 7 or 8 endpoints, though
+having multiple controllers can solve this issue.
+
+Some specific USB hubs have been running into bandwidth issues, balancing
+"high bandwidth" boards can help.
+
+
 ## License
 
 This project is licensed under the terms of the MIT license. See the LICENSE file.
