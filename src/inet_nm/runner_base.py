@@ -33,6 +33,7 @@ class NmNodesRunner:
         nodes: List[NmNode],
         default_timeout: int = None,
         seq=False,
+        force=False,
         extra_env: EnvConfigFormat = None,
     ):
         """
@@ -42,6 +43,7 @@ class NmNodesRunner:
             nodes: A list of NmNode instances to be managed.
             default_timeout: Default timeout value for file lock acquisition.
             seq: If True, operations are run sequentially instead of concurrently.
+            force: If True, operations are run even if the node is locked.
             extra_env: A dictionary of extra environment variables to be passed
                 to the operation function.
 
@@ -49,6 +51,7 @@ class NmNodesRunner:
         self.nodes = nodes
         self.default_timeout = default_timeout
         self.seq = seq
+        self.force = force
         self.extra_env = extra_env or EnvConfigFormat(shared={}, nodes={}, patterns=[])
         self.lockable_nodes = [
             (node, FileLock(lk.get_lock_path(node), timeout=default_timeout))
@@ -88,12 +91,16 @@ class NmNodesRunner:
             timeout (float): Timeout value for file lock acquisition.
                 If None, default_timeout is used.
         """
+        if self.force:
+            return
         for lock in self.locks:
             lock.acquire(timeout=timeout or self.default_timeout)
         self._acquired = True
 
     def release(self):
         """Release all acquired file locks."""
+        if self.force:
+            return
         for lock in self.locks:
             try:
                 lock.release()
@@ -109,7 +116,8 @@ class NmNodesRunner:
         operation concurrently on all nodes.
         The operation to run is defined by the `func` method.
         """
-        if not self._acquired:
+
+        if not self._acquired and not self.force:
             raise Exception("You must call acquire() before calling run()")
 
         self.pre()

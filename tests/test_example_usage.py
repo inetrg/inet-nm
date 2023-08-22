@@ -270,6 +270,24 @@ def test_cli_example(tmpdir, cli_readme_mock):
     )
 
     ret = ct.run_step(
+        description="We can ignore other people and simply force the selected "
+        "boards to execute something... You would not be a good citizen but "
+        "it may be useful just to replicate an environment.",
+        cmd="inet-nm-exec",
+        args=['"echo foo"', "--missing", "--force", "--only-used"],
+    )
+    assert "foo" in ret
+    # Wait until async process finishes
+    time.sleep(1)
+
+    ret = ct.run_step(
+        description="Let's block the board_1 again...",
+        cmd="inet-nm-exec",
+        args=['"sleep 1"', "--missing", "--skip-dups", "--boards", "board_1"],
+        timeout=2,
+        skip_read=True,
+    )
+    ret = ct.run_step(
         description="Before the command finishes, in a different terminal, we "
         "can check to see what is available to us, notice we will "
         "be missing one of the `board_1` boards.",

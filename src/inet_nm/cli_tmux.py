@@ -29,6 +29,9 @@ def main():
         "-w", "--window", action="store_true", help="Open a window for each node."
     )
     parser.add_argument(
+        "-F", "--force", action="store_true", help="Force the tmux session to start."
+    )
+    parser.add_argument(
         "-n", "--session-name", default="default", help="Name of the tmux session."
     )
     parser.add_argument(
@@ -52,6 +55,7 @@ def main():
     window = kwargs.pop("window")
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
+    force = kwargs.pop("force")
     sname = kwargs.pop("session_name")
     nodes = rh.sanity_check("tmux", **kwargs)
 
@@ -65,14 +69,14 @@ def main():
     signal.signal(signal.SIGHUP, rh.do_nothing)
     if window:
         with apps.NmTmuxWindowedRunner(
-            nodes, default_timeout=timeout, extra_env=extra_env
+            nodes, default_timeout=timeout, extra_env=extra_env, force=force
         ) as runner:
             runner.cmd = cmd
             runner.session_name = sname
             runner.run()
     else:
         with apps.NmTmuxPanedRunner(
-            nodes, default_timeout=timeout, extra_env=extra_env
+            nodes, default_timeout=timeout, extra_env=extra_env, force=force
         ) as runner:
             runner.cmd = cmd
             runner.session_name = sname

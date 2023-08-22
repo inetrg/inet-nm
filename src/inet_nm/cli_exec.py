@@ -20,12 +20,16 @@ def main():
         " attention to escape characters.",
     )
     parser.add_argument(
+        "-F", "--force", action="store_true", help="Force execution of command."
+    )
+    parser.add_argument(
         "-t",
         "--timeout",
         type=float,
         default=None,
         help="Wait until node available in seconds.",
     )
+
     parser.add_argument(
         "--seq",
         action="store_true",
@@ -39,6 +43,7 @@ def main():
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
     seq = kwargs.pop("seq")
+    force = kwargs.pop("force")
     nodes = rh.sanity_check("/bin/bash", **kwargs)
 
     extra_env = rh.node_env_vars(args.config)
@@ -46,7 +51,7 @@ def main():
     signal.signal(signal.SIGHUP, rh.do_nothing)
     try:
         with apps.NmShellRunner(
-            nodes, default_timeout=timeout, seq=seq, extra_env=extra_env
+            nodes, default_timeout=timeout, seq=seq, extra_env=extra_env, force=force
         ) as runner:
             runner.cmd = cmd
             runner.run()
