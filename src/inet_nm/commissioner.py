@@ -4,6 +4,11 @@ from typing import List, Optional
 
 import pyudev
 
+try:
+    from cp210x import cp210x
+except ImportError:
+    cp210x = None
+
 import inet_nm._helpers as hlp
 from inet_nm._helpers import nm_prompt_choice, nm_prompt_confirm, nm_prompt_input
 from inet_nm.data_types import NmNode
@@ -11,6 +16,45 @@ from inet_nm.data_types import NmNode
 
 class TtyNotPresent(Exception):
     """Exception to be raised when a TTY device is not found for a given NmNode."""
+
+
+def check_and_set_uninitialized_sn(node: NmNode, sns: List = None):
+    """
+    Check if a given NmNode has an uninitialized serial number and prompt the user
+    to set it.
+
+    Args:
+        node: An NmNode object.
+        sns: List of serial numbers to check against.
+    """
+
+    if cp210x is None:
+        return
+    sns = sns or ["0001"]
+    if node.serial not in sns:
+        return
+
+    pid_vid_sn = {
+        "idVendor": int(node.vendor_id, 16),
+        "idProduct": int(node.product_id, 16),
+    }
+    for usbdev in cp210x.Cp210xProgrammer.list_devices([pid_vid_sn]):
+        # We only take the first one that matches
+        if usbdev.serial_number != node.serial:
+            continue
+
+        dev = cp210x.Cp210xProgrammer(usbdev)
+
+        random.seed()
+        sn = f"INET-NM-{random.randint(0, 10**20)}".zfill(20)
+        hlp.nm_print(f"Found uninitialized serial number ({node.serial})")
+        sn = hlp.nm_prompt_default_input("Enter serial number", sn)
+
+        dev.set_values({"serial_number": sn})
+        node.serial = sn
+        node.uid = node.calculate_uid(node.product_id, node.vendor_id, node.serial)
+        hlp.nm_print(f"Wrote {sn} to serial number in EEPROM.")
+        return
 
 
 def get_devices_from_tty(saved_nodes: Optional[List[NmNode]] = None) -> List[NmNode]:

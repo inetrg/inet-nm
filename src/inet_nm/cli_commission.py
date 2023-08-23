@@ -63,7 +63,7 @@ def main():
         )
         if selected_node.board in binfo:
             selected_node.features_provided = binfo[selected_node.board]
-
+    cmr.check_and_set_uninitialized_sn(selected_node)
     nodes = cmr.add_node_to_nodes(saved_nodes, selected_node)
     nodes_cfg.save(nodes)
     print(f"Updated {nodes_cfg.file_path}")
