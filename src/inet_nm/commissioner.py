@@ -160,7 +160,10 @@ def select_available_node(nodes: List[NmNode]) -> NmNode:
     def _nice_node(node: NmNode):
         nonlocal uids
         ttys = get_ttys_from_nm_node(node)
-        tty = ttys[uids.count(node.uid)]
+        if ttys:
+            tty = ttys[uids.count(node.uid)]
+        else:
+            tty = "Unknown"
         msg = f"{tty} {node.vendor}"
         if node.model:
             msg += f" {node.model}"
