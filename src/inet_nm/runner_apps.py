@@ -129,8 +129,14 @@ class NmTmuxPanedRunner(NmTmuxBaseRunner):
             env: Environment variables for the command.
         """
         time.sleep(idx * self.SETUP_WAIT)
+        e_args = ""
+        for key, value in env.items():
+            esc = "\\$"
+            if "${" in value:
+                e_args += f" -e {key}={value.replace('$', esc)}"
+            else:
+                e_args += f" -e {key}={value}"
 
-        e_args = " -e " + " -e ".join([f"{key}={value}" for key, value in env.items()])
         if idx != 0:
             subprocess.run(
                 f"tmux split-window {e_args} -t {self.session_name}", shell=True
