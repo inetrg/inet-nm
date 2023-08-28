@@ -79,7 +79,7 @@ except ImportError:
 
 
 @flaky(max_runs=1)
-@pytest.mark.skipif(inquirer is not None, reason="does not run on windows")
+@pytest.mark.skipif(inquirer is not None, reason="inquirer should not be installed")
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 @pytest.mark.slow
 def test_cli_example(tmpdir, cli_readme_mock):
@@ -396,7 +396,7 @@ def test_cli_example(tmpdir, cli_readme_mock):
         "Take special note of the escape characters and brackets. "
         "Just something like `\\$VAR` will not work, `\\${VAR}` is needed.",
         cmd="inet-nm-export",
-        args=["MY_CUSTOM_BOARD_ENV_VAR", "\\\\${NM_BOARD}", "--apply-to-shared"],
+        args=["MY_CUSTOM_BOARD_ENV_VAR", "\\${NM_BOARD}", "--apply-to-shared"],
     )
 
     ct.run_step(
