@@ -29,6 +29,7 @@ class NmShellRunner(NmNodesRunner):
 
     cmd = "echo $NM_IDX"
     SETUP_WAIT = 0.1
+    results = []
 
     @staticmethod
     def _run_command(cmd, prefix, env):
@@ -81,7 +82,16 @@ class NmShellRunner(NmNodesRunner):
         # Note that the run command exits after one command is executed.
         # So if we want to loop with a default shell it will exit after the first loop.
         cmd = f"/bin/bash -c '{self.cmd}'"
-        NmShellRunner._run_command(cmd, prefix=prefix, env=full_env)
+        res = NmShellRunner._run_command(cmd, prefix=prefix, env=full_env)
+        self.results.append(f"RESULT:{prefix}{res}")
+
+    def post(self):
+        """Run after the operations on nodes have completed.
+
+        It prints the results of the commands executed on nodes.
+        """
+        for result in self.results:
+            nm_print(result)
 
 
 class NmTmuxBaseRunner(NmNodesRunner):
