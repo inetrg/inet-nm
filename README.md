@@ -295,13 +295,15 @@ design constraints. High-end boards might support more devices than budget ones.
 In practice, while the USB standard allows many devices, real-world
 constraints like power, bandwidth, and hardware often reduce this number.
 
-We recommend using powered USB hubs.
+Powered USB hubs solve the power problem.
+Some dev kits take up lots of bandwidth resources (such as atmel based boards or the newer nrf dev kits).
+[This is due to isochronous bandwidth reservations.](https://www.thegoodpenguin.co.uk/blog/understanding-why-usb-isochronous-bandwidth-errors-occur/)
+Some testing shows a USB controller can be saturated with as few as 7 boards.
 
-We also found that the development kits use around 7 or 8 endpoints, though
-having multiple controllers can solve this issue.
+Otherwise, there is a limit of not only endpoints but also from the `xHCI` allowing a maximum of 32 in most cases.
+This can be achieved with ESP32 dev kits since they don't take much bandwidth.
 
-Some specific USB hubs have been running into bandwidth issues, balancing
-"high bandwidth" boards can help.
+Extra USB controller hardware can help with these issues but at some point either the server needs to become more "distributed" or boards should be remotely removed via hub power control and only a fraction of boards would be active at a given moment.
 
 
 ## License
