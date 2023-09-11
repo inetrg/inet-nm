@@ -1,5 +1,6 @@
 """This module commissions USB boards."""
 import random
+import time
 from typing import List, Optional
 
 import pyudev
@@ -51,6 +52,21 @@ def check_and_set_uninitialized_sn(node: NmNode, sns: List = None):
         sn = hlp.nm_prompt_default_input("Enter serial number", sn)
 
         dev.set_values({"serial_number": sn})
+        # It seems there is some issues with reset.
+        # Without a reset the device SN does not change properly.
+        # With the reset some exceptions get thrown but the SN is set.
+        # This is a quick fix.
+        time.sleep(1)
+        try:
+
+            def _junk(x):
+                pass
+
+            cp210x.Cp210xProgrammer.__del__ = _junk
+            dev.reset()
+        except Exception:
+            pass
+
         node.serial = sn
         node.uid = node.calculate_uid(node.product_id, node.vendor_id, node.serial)
         hlp.nm_print(f"Wrote {sn} to serial number in EEPROM.")
