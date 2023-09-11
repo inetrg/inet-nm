@@ -195,6 +195,21 @@ def add_node_to_nodes(nodes: List[NmNode], node: NmNode) -> List[NmNode]:
     return nodes
 
 
+def remove_node_to_nodes(nodes: List[NmNode], node: NmNode) -> List[NmNode]:
+    """
+    Remove an NmNode from a list of existing NmNode objects.
+
+    Args:
+        nodes: List of existing NmNode objects.
+        node: NmNode to be removed.
+
+    Returns:
+        Updated list of NmNode objects.
+    """
+    nodes = [n for n in nodes if n.uid != node.uid]
+    return nodes
+
+
 def select_board(board_names: List[str], node: NmNode) -> str:
     """
     Prompts the user to select a board for a given NmNode.
