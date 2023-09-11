@@ -142,7 +142,21 @@ class NodesConfig(_ConfigFile):
             The loaded nodes data.
         """
         data = super().load()
-        return [NmNode.from_dict(item) for item in data]
+        nodes = [NmNode.from_dict(item) for item in data]
+
+        user_path = Path(self.file_path.parent / "user_node_info.json")
+        try:
+            with user_path.open() as file:
+                user_data = json.load(file)
+            for uid, features in user_data.items():
+                node: NmNode
+                for node in nodes:
+                    if node.uid == uid:
+                        node.features_provided.extend(features)
+                        break
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            pass
+        return nodes
 
 
 class EnvConfig(_ConfigFile):
