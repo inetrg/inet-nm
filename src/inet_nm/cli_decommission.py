@@ -36,6 +36,11 @@ def main():
         try:
             selected_node = cmr.select_available_node(nodes_to_remove)
             nodes = cmr.remove_node_to_nodes(nodes, selected_node)
+            print("Removed node:")
+            print(f"    UID: {selected_node.uid}")
+            print(f"    PID: {selected_node.product_id}")
+            print(f"    VID: {selected_node.vendor_id}")
+            print(f"    SN:  {selected_node.serial}")
         except ValueError:
             print("No available nodes found")
             sys.exit(1)
