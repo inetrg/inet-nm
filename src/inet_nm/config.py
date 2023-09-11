@@ -91,7 +91,20 @@ class BoardInfoConfig(_ConfigFile):
         Returns:
             The loaded board info data.
         """
-        return super().load()
+        data = super().load()
+
+        user_path = Path(self.file_path.parent / f"user_{self._FILENAME}")
+        try:
+            with user_path.open() as file:
+                user_data = json.load(file)
+            # Extend data with user list of features
+            for board, features in user_data.items():
+                if board not in data:
+                    data[board] = []
+                data[board].extend(features)
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            pass
+        return data
 
 
 class NodesConfig(_ConfigFile):
