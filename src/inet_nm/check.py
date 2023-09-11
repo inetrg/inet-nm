@@ -194,6 +194,7 @@ def check_nodes(
     skip_dups: bool = False,
     only_used: bool = False,
     boards: List[str] = None,
+    uids: List[str] = None,
     locked_nodes: List[str] = None,
 ) -> List[NmNode]:
     """
@@ -209,6 +210,8 @@ def check_nodes(
         used: If True, used nodes will also be returned.
         skip_dups: If True, duplicate nodes will be removed.
         only_used: If True, only the used nodes will be returned.
+        boards: A list of boards to use.
+        uids: A list of UIDs of nodes to use.
         locked_nodes: A list of UIDs of nodes that are locked.
 
     Returns:
@@ -229,6 +232,8 @@ def check_nodes(
         nodes = skip_duplicate_boards(nodes)
     if boards:
         nodes = [node for node in nodes if node.board in boards]
+    if uids:
+        nodes = [node for node in nodes if node.uid in uids]
     # filter out ignored nodes
     nodes = [node for node in nodes if not node.ignore]
     return nodes
@@ -249,6 +254,12 @@ def check_filter_args(parser: argparse.ArgumentParser):
         "--boards",
         nargs="+",
         help="Use only the list of boards that match these names",
+    )
+    parser.add_argument(
+        "-d",
+        "--uids",
+        nargs="+",
+        help="Use only the list of boards that match these UIDs",
     )
 
 
@@ -321,6 +332,7 @@ def get_filtered_nodes(
     skip_dups: bool = False,
     only_used: bool = False,
     boards: List[str] = None,
+    uids: List[str] = None,
 ) -> List[NmNode]:
     """
     Get a list of nodes based on the provided parameters.
@@ -335,6 +347,8 @@ def get_filtered_nodes(
         used: If True, used nodes will also be returned.
         skip_dups: If True, duplicate nodes will be removed.
         only_used: If True, only the used nodes will be returned.
+        boards: A list of boards to use.
+        uids: A list of UIDs of nodes to use.
 
     Returns:
         A list of filtered nodes.
@@ -351,6 +365,7 @@ def get_filtered_nodes(
         skip_dups,
         only_used,
         boards,
+        uids,
         locked_nodes,
     )
     return nodes
