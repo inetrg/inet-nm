@@ -80,10 +80,12 @@ def main():
     if changes:
         with open(tmp_state_path, "w") as f:
             json.dump(uid_states, f, sort_keys=True, indent=2)
-            print(f"Updated uid_states written to {tmp_state_path}")
+            if not print_json:
+                print(f"Updated uid_states written to {tmp_state_path}")
         with open(tmp_changes_path, "w") as f:
             json.dump(board_changes, f, sort_keys=True, indent=2)
-            print(f"Updated changes written to {tmp_changes_path}")
+            if not print_json:
+                print(f"Updated changes written to {tmp_changes_path}")
     else:
         try:
             with open(tmp_changes_path, "r") as f:
