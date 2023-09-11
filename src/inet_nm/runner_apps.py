@@ -8,6 +8,7 @@ Classes:
 """
 
 import os
+import re
 import subprocess
 import time
 from typing import Dict
@@ -29,15 +30,21 @@ class NmShellRunner(NmNodesRunner):
 
     cmd = "echo $NM_IDX"
     SETUP_WAIT = 0.1
+    output_filter = None
     results = []
 
     @staticmethod
-    def _run_command(cmd, prefix, env):
+    def _run_command(cmd, prefix, env, regex_str=None):
         def get_output(process):
             output = process.stdout.readline()
 
             if output:
-                nm_print(f"{prefix}{output.decode().strip()}")
+                if regex_str is not None:
+                    matched = re.findall(regex_str, output.decode().strip())
+                    for data in matched:
+                        nm_print(f"{prefix}{data}")
+                else:
+                    nm_print(f"{prefix}{output.decode().strip()}")
             else:
                 # Have a small sleep so we are not burning CPU waiting for output.
                 time.sleep(0.1)
@@ -82,8 +89,15 @@ class NmShellRunner(NmNodesRunner):
         # Note that the run command exits after one command is executed.
         # So if we want to loop with a default shell it will exit after the first loop.
         cmd = f"/bin/bash -c '{self.cmd}'"
-        res = NmShellRunner._run_command(cmd, prefix=prefix, env=full_env)
-        self.results.append(f"RESULT:{prefix}{res}")
+        if self.output_filter is None:
+            regex_str = None
+        else:
+            regex_str = re.compile(self.output_filter)
+        res = NmShellRunner._run_command(
+            cmd, prefix=prefix, env=full_env, regex_str=regex_str
+        )
+        if self.output_filter is None:
+            self.results.append(f"RESULT:{prefix}{res}")
 
     def post(self):
         """Run after the operations on nodes have completed.

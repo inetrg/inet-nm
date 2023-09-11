@@ -29,11 +29,17 @@ def main():
         default=None,
         help="Wait until node available in seconds.",
     )
-
     parser.add_argument(
         "--seq",
         action="store_true",
         help="Run commands sequentially instead of concurrently",
+    )
+    parser.add_argument(
+        "-r",
+        "--output-filter",
+        type=str,
+        default=None,
+        help="Filter all lines with regex.",
     )
 
     cfg.config_arg(parser)
@@ -44,6 +50,7 @@ def main():
     cmd = kwargs.pop("cmd")
     seq = kwargs.pop("seq")
     force = kwargs.pop("force")
+    output_filter = kwargs.pop("output_filter")
     nodes = rh.sanity_check("/bin/bash", **kwargs)
 
     extra_env = rh.node_env_vars(args.config)
@@ -54,6 +61,7 @@ def main():
             nodes, default_timeout=timeout, seq=seq, extra_env=extra_env, force=force
         ) as runner:
             runner.cmd = cmd
+            runner.output_filter = output_filter
             runner.run()
     except KeyboardInterrupt:
         print()
