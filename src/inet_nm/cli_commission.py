@@ -5,7 +5,7 @@ import inet_nm.commissioner as cmr
 import inet_nm.config as cfg
 
 
-def main():
+def _main():
     """CLI to commission a USB board."""
     parser = argparse.ArgumentParser(description="Commission USB boards")
     cfg.config_arg(parser)
@@ -67,6 +67,14 @@ def main():
     nodes = cmr.add_node_to_nodes(saved_nodes, selected_node)
     nodes_cfg.save(nodes)
     print(f"Updated {nodes_cfg.file_path}")
+
+
+def main():
+    """CLI to commission a USB board."""
+    try:
+        _main()
+    except KeyboardInterrupt:
+        print("\nUser aborted...")
 
 
 if __name__ == "__main__":
