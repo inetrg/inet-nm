@@ -297,6 +297,7 @@ def get_inventory_nodes(
     feat_filter: List[str] = None,
     feat_eval: str = None,
     boards: List[str] = None,
+    uids: List[str] = None,
 ) -> Tuple[List[NmNode], List[NmNode], List[NmNode]]:
     """
     Get a list of nodes based on the provided parameters.
@@ -307,6 +308,7 @@ def get_inventory_nodes(
             these features will be returned.
         feat_eval: The function to use to evaluate the features.
         boards: A list of boards to use.
+        uids: A list of UIDs of nodes to use.
 
     Returns:
         A tuple of lists of nodes. The first list is the available nodes, the
