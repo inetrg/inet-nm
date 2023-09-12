@@ -475,6 +475,100 @@ def test_cli_example(tmpdir, cli_readme_mock):
     assert res[1]["board"] == "board_2"
     assert res[2]["board"] == "board_3"
 
+    # write a example json string to a tmp dir
+    tmp_json = tmpdir / "example.json"
+    with open(tmpdir / "example.json", "w") as f:
+        f.write(
+            """
+log info
+{
+    "a": 1,
+    "b": 2
+} more generic text
+            """
+        )  # noqa
+
+    ret = ct.run_step(
+        description="Boy, we are adding features and boards all the time, "
+        "let's see some exec json filtering now.",
+        cmd="inet-nm-exec",
+        args=["--missing", "--json-filter", f'"cat {tmp_json}"'],
+    )
+
+    res = json.loads(ret)
+
+    assert res[0]["data"][0]["a"] == 1
+    assert res[0]["data"][0]["b"] == 2
+    uid = res[0]["uid"]
+    board = res[0]["board"]
+
+    ret = ct.run_step(
+        description="We can also select nodes based on UID",
+        cmd="inet-nm-check",
+        args=["--missing", "--uids", f"{uid}"],
+    )
+
+    assert board in ret
+
+    ubi = tmpdir / "user_board_info.json"
+    with open(ubi, "w") as f:
+        f.write(f'{{"{board}": ["user_feature"]}}')
+
+    ct.run_step(
+        description="We can also add `user_board_info.json`. "
+        "that will not get overridden when updating... I added it behind the scenes.",
+        cmd="inet-nm-exec",
+        args=[f'"cat {ubi}"', "--missing", "--boards", "board_3"],
+    )
+
+    ct.run_step(
+        description="Since this is a board parameter, we must update the "
+        "already commissioned boards.",
+        cmd="inet-nm-update-commissioned",
+    )
+
+    ret = ct.run_step(
+        description="Now we can see the new feature.",
+        cmd="inet-nm-check",
+        args=["--feat-filter", "user_feature", "--missing"],
+    )
+
+    assert board in ret
+
+    uni = tmpdir / "user_node_info.json"
+    with open(uni, "w") as f:
+        f.write(f'{{"{uid}": ["user_node_feature"]}}')
+
+    ct.run_step(
+        description="We can also add features to specific nodes with "
+        "`user_node_info.json`.",
+        cmd="inet-nm-exec",
+        args=[f'"cat {uni}"', "--missing", "--boards", "board_3"],
+    )
+
+    ret = ct.run_step(
+        description="This can be directly checked.",
+        cmd="inet-nm-check",
+        args=["--feat-filter", "user_node_feature", "--missing"],
+    )
+
+    assert board in ret
+
+    # End with this
+    ct.run_step(
+        description="Let's decommission boards, say the have all broken.",
+        cmd="inet-nm-decommission",
+        args=["--all", "--missing"],
+    )
+
+    ret = ct.run_step(
+        description="Now we can see nothing is there",
+        cmd="inet-nm-check",
+        args=["--missing"],
+    )
+
+    assert "{}" in ret
+
     if cli_readme_mock:
         with open(cli_readme_mock, "w") as f:
             f.write(ct.format_md())
