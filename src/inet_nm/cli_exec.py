@@ -41,6 +41,12 @@ def main():
         default=None,
         help="Filter all lines with regex.",
     )
+    parser.add_argument(
+        "-j",
+        "--json-filter",
+        action="store_true",
+        help="Capture only json output.",
+    )
 
     cfg.config_arg(parser)
     chk.check_args(parser)
@@ -51,6 +57,7 @@ def main():
     seq = kwargs.pop("seq")
     force = kwargs.pop("force")
     output_filter = kwargs.pop("output_filter")
+    json_filter = kwargs.pop("json_filter")
     nodes = rh.sanity_check("/bin/bash", **kwargs)
 
     extra_env = rh.node_env_vars(args.config)
@@ -62,6 +69,7 @@ def main():
         ) as runner:
             runner.cmd = cmd
             runner.output_filter = output_filter
+            runner.json_filter = json_filter
             runner.run()
     except KeyboardInterrupt:
         print()

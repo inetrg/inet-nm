@@ -1,5 +1,6 @@
 """Interactive user prompts and general basic helpers."""
 
+import json
 import os
 import readline
 import sys
@@ -223,3 +224,55 @@ def nm_print(*args, **kwargs):
 def nm_input(*args, **kwargs):
     """Abstraction of input."""
     return input(*args, **kwargs)
+
+
+def nm_extract_valid_jsons(text):
+    """
+    Extract valid JSON strings from a given text.
+
+    This function iterates through the provided text character by character,
+    keeping track of the opening and closing braces to extract potential JSON strings.
+    It then validates each potential JSON string and returns a list of valid
+    JSON objects.
+
+    Args:
+    - text (str): The input text containing potential JSON strings.
+
+    Returns:
+    - list: A list of valid JSON objects.
+
+    Example:
+    >>> x = 'Log output 123\\n{ "a": 1} foobar\\nmore log stuff'
+    >>> x += '\\n{\\n  "b": 2, "c": 3,\\n"d": [{"e": 5}]\\n} and so on\\nblah blah'
+    >>> nm_extract_valid_jsons(x)
+    [{'a': 1}, {'b': 2, 'c': 3, 'd': [{'e': 5}]}]
+    """
+
+    def extract_potential_jsons(text):
+        potential_jsons = []
+        brace_count = 0
+        start_index = -1
+
+        for i, char in enumerate(text):
+            if char == "{":
+                if brace_count == 0:
+                    start_index = i
+                brace_count += 1
+            elif char == "}":
+                brace_count -= 1
+                if brace_count == 0 and start_index != -1:
+                    potential_jsons.append(text[start_index : i + 1])
+
+        return potential_jsons
+
+    potential_jsons = extract_potential_jsons(text)
+
+    valid_jsons = []
+    for potential in potential_jsons:
+        try:
+            valid_json = json.loads(potential)
+            valid_jsons.append(valid_json)
+        except json.JSONDecodeError:
+            pass
+
+    return valid_jsons

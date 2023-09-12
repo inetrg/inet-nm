@@ -7,13 +7,14 @@ Classes:
     NmTmuxWindowedRunner: Runs tmux with individual windows for each node.
 """
 
+import json
 import os
 import re
 import subprocess
 import time
 from typing import Dict
 
-from inet_nm._helpers import nm_print
+from inet_nm._helpers import nm_extract_valid_jsons, nm_print
 from inet_nm.data_types import NmNode
 from inet_nm.runner_base import NmNodesRunner
 
@@ -31,6 +32,7 @@ class NmShellRunner(NmNodesRunner):
     cmd = "echo $NM_IDX"
     SETUP_WAIT = 0.1
     output_filter = None
+    json_filter = False
     results = []
 
     @staticmethod
@@ -65,6 +67,27 @@ class NmShellRunner(NmNodesRunner):
 
         return rc
 
+    @staticmethod
+    def _run_command_json(cmd, uid, board, idx, env):
+        # Run subprocess command to completion and capture output
+        result = subprocess.run(
+            cmd,
+            env=env,
+            shell=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+        )
+        data = nm_extract_valid_jsons(result.stdout.decode())
+        result_output = {
+            "uid": uid,
+            "board": board,
+            "idx": idx,
+            "data": data,
+            "stdout": result.stdout.decode(),
+            "result": result.returncode,
+        }
+        return result_output
+
     def func(self, node: NmNode, idx: int, env: Dict[str, str]):
         """Execute shell commands on nodes.
 
@@ -93,10 +116,16 @@ class NmShellRunner(NmNodesRunner):
             regex_str = None
         else:
             regex_str = re.compile(self.output_filter)
-        res = NmShellRunner._run_command(
-            cmd, prefix=prefix, env=full_env, regex_str=regex_str
-        )
-        if self.output_filter is None:
+        if self.json_filter:
+            res = NmShellRunner._run_command_json(
+                cmd, node.uid, node.board, idx, env=full_env
+            )
+            self.results.append(res)
+        else:
+            res = NmShellRunner._run_command(
+                cmd, prefix=prefix, env=full_env, regex_str=regex_str
+            )
+        if self.output_filter is None and not self.json_filter:
             self.results.append(f"RESULT:{prefix}{res}")
 
     def post(self):
@@ -104,8 +133,11 @@ class NmShellRunner(NmNodesRunner):
 
         It prints the results of the commands executed on nodes.
         """
-        for result in self.results:
-            nm_print(result)
+        if self.json_filter:
+            nm_print(json.dumps(self.results, indent=2, sort_keys=True))
+        else:
+            for result in self.results:
+                nm_print(result)
 
 
 class NmTmuxBaseRunner(NmNodesRunner):
