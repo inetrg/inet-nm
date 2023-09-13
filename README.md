@@ -60,6 +60,8 @@ names.
 
 ## Usage
 
+[Detailed examples](https://inet-nm.readthedocs.io/en/stable/cli-example.html) get generated during tests by running `tox -e examples`.
+
 Below is the usage for each of the command-line applications included in inet_nm:
 
 ### inet-nm-update-from-os
