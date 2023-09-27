@@ -372,12 +372,6 @@ def test_cli_example(tmpdir, cli_readme_mock):
         ],
     )
 
-    ct.run_step(
-        description="Well we can updated the nodes cache in a separate step, "
-        "no need to re-commission.",
-        cmd="inet-nm-update-commissioned",
-    )
-
     ret = ct.run_step(
         description="Now we can see the new feature and board is available.",
         cmd="inet-nm-check",
@@ -519,12 +513,6 @@ log info
         "that will not get overridden when updating... I added it behind the scenes.",
         cmd="inet-nm-exec",
         args=[f'"cat {ubi}"', "--missing", "--boards", "board_3"],
-    )
-
-    ct.run_step(
-        description="Since this is a board parameter, we must update the "
-        "already commissioned boards.",
-        cmd="inet-nm-update-commissioned",
     )
 
     ret = ct.run_step(

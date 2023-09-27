@@ -18,8 +18,8 @@ class _ConfigFile:
     _LOAD_TYPE = None
 
     def __init__(self, config_dir: Union[Path, str]):
-        config_dir = Path(config_dir)
-        self.file_path = Path(config_dir / self._FILENAME).expanduser()
+        self.config_dir = Path(config_dir)
+        self.file_path = Path(self.config_dir / self._FILENAME).expanduser()
 
     def check_file(self, writable: bool = False) -> bool:
         """
@@ -133,6 +133,10 @@ class NodesConfig(_ConfigFile):
             data: The nodes data to save.
         """
         data = [node.to_dict() for node in data]
+        node: dict
+        for node in data:
+            if "features_provided" in node:
+                node["features_provided"] = []
         return super().save(data)
 
     def load(self) -> List[NmNode]:
@@ -156,6 +160,14 @@ class NodesConfig(_ConfigFile):
                         break
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             pass
+
+        # Directly add features provided from the board info
+        bic = BoardInfoConfig(self.config_dir)
+        bi = bic.load()
+        for node in nodes:
+            if node.board in bi:
+                fp = set((bi[node.board] or []) + (node.features_provided or []))
+                node.features_provided = sorted(list(fp))
         return nodes
 
 
