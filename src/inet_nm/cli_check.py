@@ -14,6 +14,7 @@ def main():
         "--show-features", action="store_true", help="Shows all features for all boards"
     )
     args = parser.parse_args()
+    cfg.check_commit_hash(args.config)
     kwargs = vars(args)
     show_features = kwargs.pop("show_features")
 

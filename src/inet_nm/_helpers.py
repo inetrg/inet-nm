@@ -3,6 +3,7 @@
 import json
 import os
 import readline
+import subprocess
 import sys
 from typing import Callable, List, Optional
 
@@ -276,3 +277,18 @@ def nm_extract_valid_jsons(text):
             pass
 
     return valid_jsons
+
+
+def get_commit(dir: str = "."):
+    """Gets a commit of the pwd if possible.
+
+    Returns:
+        A commit hash or an empty string.
+    """
+    cmd = ["git", "rev-parse", "HEAD"]
+    try:
+        commit = subprocess.check_output(cmd, cwd=dir).decode("ascii").strip()
+        full_dir = os.path.abspath(dir)
+        return [full_dir, commit]
+    except subprocess.CalledProcessError:
+        return []

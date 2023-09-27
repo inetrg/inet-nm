@@ -6,7 +6,7 @@ from pathlib import Path
 from typing import List
 
 import inet_nm.config as cfg
-from inet_nm._helpers import nm_print, nm_prompt_confirm
+from inet_nm._helpers import get_commit, nm_print, nm_prompt_confirm
 
 
 def _get_names(cmd: str, cwd: Path) -> List[str]:
@@ -70,8 +70,10 @@ def main():
 
     try:
         bi_cfg = cfg.BoardInfoConfig(args.config)
+        bich = cfg.BoardInfoCommitHash(args.config)
 
         bi_cfg.check_file(writable=True)
+        bich.check_file(writable=True)
 
         bns = _get_names(args.board_info, args.basedir)
         board_info, errors = _get_features_provided(
@@ -83,6 +85,7 @@ def main():
                 sys.exit(1)
         bi_cfg.save(board_info)
         nm_print(f"\nUpdated {bi_cfg.file_path}")
+        bich.save(get_commit(dir=args.basedir))
     except KeyboardInterrupt:
         nm_print("\nUser aborted")
         sys.exit(2)

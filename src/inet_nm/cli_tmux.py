@@ -51,6 +51,7 @@ def main():
     cfg.config_arg(parser)
     chk.check_args(parser)
     args = parser.parse_args()
+    cfg.check_commit_hash(args.config)
     kwargs = vars(args)
     window = kwargs.pop("window")
     timeout = kwargs.pop("timeout")

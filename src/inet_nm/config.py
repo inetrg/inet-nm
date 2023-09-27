@@ -10,6 +10,7 @@ import os
 from pathlib import Path
 from typing import Dict, List, Union
 
+from inet_nm._helpers import get_commit, nm_print
 from inet_nm.data_types import EnvConfigFormat, NmNode
 
 
@@ -105,6 +106,33 @@ class BoardInfoConfig(_ConfigFile):
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             pass
         return data
+
+
+class BoardInfoCommitHash(_ConfigFile):
+    """Class for handling the board info configuration hash.
+
+    This is just the git commit used for the board info generation.
+    """
+
+    _FILENAME = "board_info_commit_hash.json"
+    _LOAD_TYPE = list
+
+    def save(self, data: str):
+        """Save the board info commit hash.
+
+        Args:
+            data: The board info data to save.
+        """
+
+        return super().save(data)
+
+    def load(self) -> List[str]:
+        """Load the board info commit hash.
+
+        Returns:
+            The board info commit hash.
+        """
+        return super().load()
 
 
 class NodesConfig(_ConfigFile):
@@ -236,3 +264,27 @@ def config_arg(parser: argparse.ArgumentParser):
         help="Path to the config dir, defaults to NM_CONFIG_DIR or "
         "~/.config/inet_nm if NM_CONFIG_DIR is not set",
     )
+
+
+def check_commit_hash(config_dir: Union[Path, str]) -> bool:
+    """
+    Check if the commit hash is the same as the current commit hash.
+
+    Args:
+        config_dir: Directory for the configuration files.
+
+    Returns:
+        True if the commit hash is the same as the current commit hash,
+        False otherwise.
+    """
+    bich = BoardInfoCommitHash(config_dir)
+    commit_data = bich.load()
+    current_commit_data = get_commit()
+    if current_commit_data and commit_data:
+        if current_commit_data[1] != commit_data[1]:
+            nm_print(
+                "WARNING: The board info commit hash has changed \n"
+                "Please run 'inet-nm update-from-os' to update the board info."
+            )
+            return False
+    return True

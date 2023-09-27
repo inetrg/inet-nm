@@ -51,6 +51,7 @@ def main():
     cfg.config_arg(parser)
     chk.check_args(parser)
     args = parser.parse_args()
+
     kwargs = vars(args)
     timeout = kwargs.pop("timeout")
     cmd = kwargs.pop("cmd")
@@ -58,6 +59,8 @@ def main():
     force = kwargs.pop("force")
     output_filter = kwargs.pop("output_filter")
     json_filter = kwargs.pop("json_filter")
+    if not json_filter:
+        cfg.check_commit_hash(args.config)
     nodes = rh.sanity_check("/bin/bash", **kwargs)
 
     extra_env = rh.node_env_vars(args.config)

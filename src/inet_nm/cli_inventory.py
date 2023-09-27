@@ -33,6 +33,10 @@ def main():
 
     # get hash of tempfile name based on config path
     cfg_path = args.config
+
+    if not print_json:
+        cfg.check_commit_hash(args.config)
+
     cfg_hash = hashlib.md5(str(cfg_path).encode()).hexdigest()
     tmp_state_path = (
         tempfile.gettempdir() + "/" + "inet-nm-uid-states-" + cfg_hash + ".json"
