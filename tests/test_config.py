@@ -31,6 +31,10 @@ from inet_nm.data_types import EnvConfigFormat, NmNode
                 shared={"shared_val": "shared_val"},
             ),
         ),
+        (
+            cfg.BoardInfoCommitHash,
+            ["a", "b"],
+        ),
     ],
 )
 def test_save_load_config(tmp_path, params):
