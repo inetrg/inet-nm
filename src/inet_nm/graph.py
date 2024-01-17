@@ -16,13 +16,13 @@ def filter_valid_locations(locations):
     return valid_locs, invalid_locs
 
 
-def get_dimensions(locations):
+def _get_dimensions(locations):
     max_y = max([loc[0] for loc in locations])
     max_x = max([loc[1] for loc in locations])
     return max_y, max_x
 
 
-def generate_grid(rows, cols):
+def _generate_grid(rows, cols):
     # Create a matrix to hold the data
     matrix = [[" " for _ in range(2 * cols + 1)] for _ in range(5 * rows + 1)]
 
@@ -49,7 +49,7 @@ def generate_grid(rows, cols):
     return matrix
 
 
-def overlay_locations(matrix, locations):
+def _overlay_locations(matrix, locations):
     for loc in locations:
         y, x, pos = loc
 
@@ -57,7 +57,7 @@ def overlay_locations(matrix, locations):
         matrix[matrix_len - ((y - 1) * 5 + pos + 1)][2 * (x - 1) + 1] = "x"
 
 
-def print_grid(matrix, invalid_locations):
+def _print_grid(matrix, invalid_locations):
     for row in matrix:
         print("".join(row))
     for loc in invalid_locations:
@@ -69,10 +69,10 @@ def print_locations(locations):
         print("No locations found")
         return
     valid_locs, invalid_locs = filter_valid_locations(locations)
-    rows, cols = get_dimensions(valid_locs)
-    grid = generate_grid(rows, cols)
-    overlay_locations(grid, valid_locs)
-    print_grid(grid, invalid_locs)
+    rows, cols = _get_dimensions(valid_locs)
+    grid = _generate_grid(rows, cols)
+    _overlay_locations(grid, valid_locs)
+    _print_grid(grid, invalid_locs)
 
 
 locs = [
