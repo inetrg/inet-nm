@@ -3,74 +3,9 @@ import os
 import sys
 import time
 
-import pexpect
 import pytest
+from cli_tester import CliTester
 from flaky import flaky
-
-
-class CliTester:
-    DEFAULT_START_WAIT_TIME = 0.2
-    DEFAULT_PROCESS_TIMEOUT = 2
-    title = None
-    footer = None
-    description = None
-
-    def __init__(self, cfg_dir):
-        os.environ["NM_CONFIG_DIR"] = str(cfg_dir)
-        os.environ["COVERAGE_PROCESS_START"] = ".coveragerc"
-        self._step_results = []
-        self._async_procs = []
-
-    @staticmethod
-    def _cmd_to_coverage(cmd):
-        cmd = cmd.replace("inet-nm-", "inet_nm.cli_")
-        cmd = cmd.replace("-", "_")
-        return f"coverage run -m {cmd}"
-
-    def run_step(
-        self,
-        cmd,
-        args=None,
-        sendlines=None,
-        description=None,
-        timeout=None,
-        skip_read=False,
-    ):
-        cov_cmd = CliTester._cmd_to_coverage(cmd)
-        cov_cmd = f"{cov_cmd} {' '.join(args or [])}"
-        child = pexpect.spawn(
-            command=cov_cmd, timeout=timeout or self.DEFAULT_PROCESS_TIMEOUT
-        )
-        time.sleep(self.DEFAULT_START_WAIT_TIME)
-        for line in sendlines or []:
-            child.sendline(line)
-        if skip_read:
-            self._async_procs.append(child)
-            self._step_results.append(
-                (description, f"{cmd} {' '.join(args or [])}", "")
-            )
-            return ""
-        output = child.read().decode().replace("\r\n", "\n")
-        self._step_results.append(
-            (description, f"{cmd} {' '.join(args or [])}", output)
-        )
-        return output
-
-    def format_md(self):
-        out = ""
-        if self.title:
-            out += f"# {self.title}\n\n"
-        if self.description:
-            out += f"{self.description}\n\n"
-        out += "## Steps\n\n"
-        for idx, (desc, cmd, output) in enumerate(self._step_results):
-            out += f"{idx}. {desc}\n"
-            out += f"```bash\n$ {cmd}\n"
-            out += f"{output}```\n\n"
-        if self.footer:
-            out += f"{self.footer}\n"
-        return out
-
 
 try:
     import inquirer
@@ -83,7 +18,7 @@ except ImportError:
 @pytest.mark.skipif(sys.platform == "win32", reason="does not run on windows")
 @pytest.mark.slow
 def test_cli_example(tmpdir, cli_readme_mock):
-    ct = CliTester(tmpdir)
+    ct = CliTester()
     ct.title = "Example usage of `inet-nm` CLI features using mocked devices"
     ct.description = "The following will show how to use the `inet-nm` CLI to "
     ct.description += "commission, check, and execute commands on devices. "
@@ -94,6 +29,8 @@ def test_cli_example(tmpdir, cli_readme_mock):
     ct.description += "and thus should be up-to-date. If you want to run the "
     ct.description += "example yourself, you can run `tox -e examples`."
     ct.footer = "That was the example to show off and test most of the features."
+
+    os.environ["NM_CONFIG_DIR"] = str(tmpdir)
 
     ct.run_step(
         description="Let's just create a `board_info` list with some features...\n"
@@ -558,7 +495,7 @@ log info
     assert "{}" in ret
 
     if cli_readme_mock:
-        with open(cli_readme_mock, "w") as f:
+        with open(os.path.join(cli_readme_mock, "example_usage.md"), "w") as f:
             f.write(ct.format_md())
     else:
         print(ct.format_md())
