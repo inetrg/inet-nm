@@ -240,6 +240,21 @@ class EnvConfig(_ConfigFile):
         return EnvConfigFormat.from_dict(data)
 
 
+class LocationConfig(_ConfigFile):
+    """Class for handling the location mapping.
+
+
+    Args:
+        config_dir: Directory for the configuration files.
+
+    Attributes:
+        file_path (Path): Path to the env configuration file.
+    """
+
+    _FILENAME = "location.json"
+    _LOAD_TYPE = dict
+
+
 def get_default_path() -> Path:
     """
     Return the default path for the configuration files.

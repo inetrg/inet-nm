@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import readline
 import subprocess
 import sys
@@ -292,3 +293,64 @@ def get_commit(dir: str = "."):
         return [full_dir, commit]
     except subprocess.CalledProcessError:
         return []
+
+
+def largest_matching_name(names):
+    """
+    Find the largest semantic version name in a list of names.
+
+    Args:
+        names: List of names to check.
+
+    Returns:
+        The largest semantic version name.
+    """
+
+    # Nested function to check if a string is a semantic version
+    def is_matching_version(s):
+        return bool(re.match(r"^\d+\.\d+\.\d+$", s))
+
+    # Nested function to convert semantic version string "x.y.z" to tuple (x, y, z)
+    def version_to_tuple(v):
+        return tuple(map(int, v.split(".")))
+
+    # Filter the list for semantic names, convert each to a tuple,
+    # and find the largest tuple
+    matching_names = [v for v in names if is_matching_version(v)]
+    largest_version_tuple = max(
+        map(version_to_tuple, matching_names), default=(1, 1, 0)
+    )
+
+    return largest_version_tuple
+
+
+def try_to_inc_map_name(names: List[str]) -> str:
+    """Try to increment a name from a list of names.
+
+    If default convention is followed: for example,
+    1.1.1
+    1.1.2
+    1.1.3
+    1.1.4 (every 4 nodes get bumped)
+    1.2.1
+    1.2.2
+    1.2.3
+    1.2.4
+    2.1.1 (manual bump should continue from there)
+    2.1.2
+    2.1.3
+    2.1.4
+    2.2.1
+
+    Args:
+        names: List of names to check.
+
+    Returns:
+        The incremented name.
+    """
+    largest = largest_matching_name(names)
+    if largest[2] < 4:
+        largest = (largest[0], largest[1], largest[2] + 1)
+    elif largest[1] < 4:
+        largest = (largest[0], largest[1] + 1, 1)
+    return f"{largest[0]}.{largest[1]}.{largest[2]}"
