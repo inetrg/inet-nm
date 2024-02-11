@@ -6,31 +6,10 @@ This is meant for evaluating inventory.
 import argparse
 from typing import Dict, List, Tuple
 
-import pyudev
-
 import inet_nm.config as cfg
 from inet_nm.data_types import NmNode
 from inet_nm.locking import get_locked_uids
-
-
-def get_connected_uids() -> List[str]:
-    """
-    Get the UIDs of all connected USB devices.
-
-    Returns:
-        A list of UIDs of all connected USB devices.
-    """
-    uids = []
-    context = pyudev.Context()
-    for device in context.list_devices(subsystem="tty"):
-        parent = device.find_parent("usb", "usb_device")
-        if parent is None:
-            continue
-        vendor_id = parent.get("ID_VENDOR_ID")
-        model_id = parent.get("ID_MODEL_ID")
-        serial_short = parent.get("ID_SERIAL_SHORT")
-        uids.append(NmNode.calculate_uid(model_id, vendor_id, serial_short))
-    return uids
+from inet_nm.usb_ctrl import get_connected_uids
 
 
 def get_nodes_with_state(nodes: List[NmNode], connected=True) -> List[NmNode]:

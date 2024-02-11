@@ -3,6 +3,7 @@ import sys
 
 import inet_nm.commissioner as cmr
 import inet_nm.config as cfg
+from inet_nm.usb_ctrl import TtyNotPresent
 
 
 def main():
@@ -25,7 +26,7 @@ def main():
         return
     try:
         print(cmr.get_tty_from_nm_node(node))
-    except cmr.TtyNotPresent:
+    except TtyNotPresent:
         print(f"Could not find TTY device for {node.board} with SN {node.serial}")
         sys.exit(1)
     sys.exit(0)

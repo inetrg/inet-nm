@@ -1,9 +1,7 @@
 """This module commissions USB boards."""
 import random
 import time
-from typing import List, Optional
-
-import pyudev
+from typing import List
 
 try:
     from cp210x import cp210x
@@ -13,10 +11,7 @@ except ImportError:
 import inet_nm._helpers as hlp
 from inet_nm._helpers import nm_prompt_choice, nm_prompt_confirm, nm_prompt_input
 from inet_nm.data_types import NmNode
-
-
-class TtyNotPresent(Exception):
-    """Exception to be raised when a TTY device is not found for a given NmNode."""
+from inet_nm.usb_ctrl import get_ttys_from_nm_node
 
 
 def check_and_set_uninitialized_sn(node: NmNode, sns: List = None):
@@ -71,93 +66,6 @@ def check_and_set_uninitialized_sn(node: NmNode, sns: List = None):
         node.uid = node.calculate_uid(node.product_id, node.vendor_id, node.serial)
         hlp.nm_print(f"Wrote {sn} to serial number in EEPROM.")
         return
-
-
-def get_devices_from_tty(saved_nodes: Optional[List[NmNode]] = None) -> List[NmNode]:
-    """
-    Retrieve connected TTY devices as a list of NmNode objects.
-
-    Args:
-        saved_nodes: List of previously saved NmNode objects.
-
-    Returns:
-        List of NmNode objects representing connected TTY devices.
-
-    Raises:
-        TtyNotPresent: If a TTY device could not be found for a given NmNode.
-    """
-    saved_nodes = saved_nodes or []
-    context = pyudev.Context()
-    nodes = []
-    for device in context.list_devices(subsystem="tty"):
-        if "ACM" in device.device_node or "USB" in device.device_node:
-            usb_device = device.find_parent("usb", "usb_device")
-            nm_node = NmNode(
-                vendor_id=usb_device.get("ID_VENDOR_ID"),
-                product_id=usb_device.get("ID_MODEL_ID"),
-                serial=usb_device.get("ID_SERIAL_SHORT"),
-                vendor=usb_device.get("ID_VENDOR_FROM_DATABASE"),
-                model=usb_device.get("ID_MODEL_FROM_DATABASE"),
-                driver=usb_device.get("DRIVER"),
-            )
-
-            if nm_node.uid in [node.uid for node in saved_nodes]:
-                continue
-            nodes.append(nm_node)
-    return nodes
-
-
-def get_tty_from_nm_node(nm_node: NmNode) -> str:
-    """
-    Retrieve the TTY device node string for a given NmNode.
-
-    Args:
-        nm_node: An NmNode object.
-
-    Returns:
-        The TTY device node string.
-
-    Raises:
-        TtyNotPresent: If a TTY device could not be found for the given NmNode.
-    """
-    ttys = get_ttys_from_nm_node(nm_node)
-    if ttys:
-        return ttys[0]
-
-    raise TtyNotPresent(f"Could not find tty device for {nm_node}")
-
-
-def get_ttys_from_nm_node(nm_node: NmNode) -> List[str]:
-    """
-    Retrieve the TTY device node string for a given NmNode.
-
-    Args:
-        nm_node: An NmNode object.
-
-    Returns:
-        The TTY device node string.
-
-    Raises:
-        TtyNotPresent: If a TTY device could not be found for the given NmNode.
-    """
-    context = pyudev.Context()
-    vendor_id = nm_node.vendor_id
-    model_id = nm_node.product_id
-    serial_short = nm_node.serial
-
-    ttys = []
-
-    for device in context.list_devices(subsystem="tty"):
-        parent = device.find_parent("usb", "usb_device")
-        if parent is None:
-            continue
-        if (
-            parent.get("ID_VENDOR_ID") == vendor_id
-            and parent.get("ID_MODEL_ID") == model_id
-            and parent.get("ID_SERIAL_SHORT") == serial_short
-        ):
-            ttys.append(device.device_node)
-    return ttys
 
 
 def select_available_node(nodes: List[NmNode]) -> NmNode:
