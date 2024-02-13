@@ -1,5 +1,5 @@
 from copy import copy
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock
 
 import pytest
 
@@ -55,28 +55,6 @@ def mock_devices():
     ]
 
     return [mock_device_1, mock_device_2]
-
-
-def test_get_devices_from_tty(mock_devices, dummy_nodes):
-    """Mock devices returned by context.list_devices."""
-    # Mock the context.list_devices method
-    list_devices_mock = MagicMock()
-    list_devices_mock.return_value = mock_devices
-
-    with patch("pyudev.Context.list_devices", list_devices_mock):
-        assert commissioner.get_devices_from_tty() == dummy_nodes
-
-
-def test_get_tty_from_nm_node(mock_devices, dummy_nodes):
-    """Test if the tty can be checked fro a given node."""
-    with patch("pyudev.Context.list_devices", MagicMock(return_value=mock_devices[:1])):
-        assert (
-            commissioner.get_tty_from_nm_node(dummy_nodes[0])
-            == mock_devices[0].device_node
-        )
-
-        with pytest.raises(commissioner.TtyNotPresent):
-            commissioner.get_tty_from_nm_node(dummy_nodes[1])
 
 
 def test_add_node_to_nodes(dummy_nodes):

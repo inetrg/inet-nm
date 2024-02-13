@@ -11,9 +11,9 @@ from typing import Dict, List
 
 import inet_nm.locking as lk
 from inet_nm._helpers import nm_print
-from inet_nm.commissioner import get_ttys_from_nm_node
 from inet_nm.data_types import EnvConfigFormat, NmNode, NodeEnv
 from inet_nm.filelock import FileLock
+from inet_nm.usb_ctrl import get_ttys_from_nm_node
 
 
 class NmNodesRunner:

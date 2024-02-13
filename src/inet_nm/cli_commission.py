@@ -3,6 +3,7 @@ import sys
 
 import inet_nm.commissioner as cmr
 import inet_nm.config as cfg
+from inet_nm.usb_ctrl import TtyNotPresent, get_devices_from_tty
 
 
 def _main():
@@ -36,9 +37,7 @@ def _main():
 
     saved_nodes = nodes_cfg.load()
     nm_nodes = (
-        cmr.get_devices_from_tty()
-        if args.no_cache
-        else cmr.get_devices_from_tty(saved_nodes)
+        get_devices_from_tty() if args.no_cache else get_devices_from_tty(saved_nodes)
     )
     print(f"Found {len(saved_nodes)} saved nodes in {args.config}")
     if args.mock_dev:
@@ -49,7 +48,7 @@ def _main():
     except ValueError:
         print("No available nodes found")
         sys.exit(1)
-    except cmr.TtyNotPresent as exc:
+    except TtyNotPresent as exc:
         if args.mock_dev:
             selected_node = nm_nodes[-1]
         else:
