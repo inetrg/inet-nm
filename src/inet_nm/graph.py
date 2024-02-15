@@ -125,20 +125,3 @@ def parse_locations(locations):
     _overlay_locations(grid, valid_locs)
     grid = _parse_grid(grid)
     return grid + "\n".join(invalid_locs)
-
-
-# locs = [
-#     ["1.1.1", "3.1.2", "1.3.4", "garbage"],
-#     [],
-#     ["1.1.1", "3.2.2", "1.3.4", "1.2.3.4"],
-#     ["1.1.1", "3.1.2", "1.3.4", "1.2.6"],
-#     ["1.1.1", "3.1.2", "1.3.4", "a.3.4"],
-#     ["1.1.1"],
-#     ["3.3.1"],
-#     ["3.3.3"],
-#     ["2.3.4"],
-# ]
-# for loc in locs:
-#     print(loc)
-#     print(parse_locations(loc))
-#     print("==================")
