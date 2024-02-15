@@ -11,7 +11,11 @@ from inet_nm._helpers import (
     try_to_inc_map_name,
 )
 from inet_nm.data_types import NmNode
-from inet_nm.usb_ctrl import get_connected_id_paths, get_id_path_from_node
+from inet_nm.usb_ctrl import (
+    get_connected_id_paths,
+    get_id_path_from_node,
+    get_usb_info_from_node,
+)
 
 
 def select_available_node(nodes: List[NmNode], mapped_locations: List[str]) -> NmNode:
@@ -44,6 +48,12 @@ def _main():
     parser.add_argument(
         "-l", "--locate", action="store_true", help="Use usb hub location"
     )
+    parser.add_argument(
+        "-p",
+        "--power-control",
+        action="store_true",
+        help="Flag that the port has power control option",
+    )
 
     args = parser.parse_args()
     loc_cfg = cfg.LocationConfig(config_dir=args.config)
@@ -57,17 +67,29 @@ def _main():
     else:
         available = chk.get_filtered_nodes(config=args.config)
         sel_node = select_available_node(available, list(loc_mapping.keys()))
-        location = get_id_path_from_node(sel_node)
-    def_name = try_to_inc_map_name(list(loc_mapping.values()))
+        location, hub, port = get_usb_info_from_node(sel_node)
+    # use list comprehension to get the names from the loc_mapping dict values
+    names = [usb_info["name"] for usb_info in loc_mapping.values()]
+    def_name = try_to_inc_map_name(names)
     name = nm_prompt_default_input("Enter a name for the location", default=def_name)
     if location in loc_mapping:
         res = nm_prompt_confirm(
             f"Overwrite {location} currently " f"{loc_mapping[location]}?", default=True
         )
         if res:
-            loc_mapping[location] = name
+            loc_mapping[location] = {
+                "name": name,
+                "power_control": args.power_control,
+                "hub": hub,
+                "port": port,
+            }
     else:
-        loc_mapping[location] = name
+        loc_mapping[location] = {
+            "name": name,
+            "power_control": args.power_control,
+            "hub": hub,
+            "port": port,
+        }
     loc_cfg.save(loc_mapping)
     nm_print(f"{name} mapped to {location}")
     nm_print(f"Updated {loc_cfg.file_path}")

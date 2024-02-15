@@ -62,7 +62,8 @@ def _main():
     if len(matching_locs) and isinstance(matching_locs[0], list):
         matching_locs = sorted(matching_locs)
     if graph:
-        nm_print(parse_locations(matching_locs))
+        names = [usb_info["name"] for usb_info in matching_locs]
+        nm_print(parse_locations(names))
     else:
         nm_print(json.dumps(matching_locs, indent=2, sort_keys=True))
 

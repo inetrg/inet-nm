@@ -44,7 +44,9 @@ def add_board(id=None, **kwargs):
     hash_object = hashlib.md5(id.encode())
     # Convert the hash to a hexadecimal string
     hex_hash = hash_object.hexdigest()
-
+    DEVPATH = kwargs.get(
+        "DEVPATH", f"/devices/pci0000:00/0000:00:00.0/usb1/1-{board_counter}"
+    )
     ID_PATH = kwargs.get("ID_PATH", f"pci-0000:00:00.0-usb-0:{board_counter}")
     device_node = kwargs.get("device_node", f"/dev/ttyUSB{board_counter + 100}")
     ID_VENDOR_ID = kwargs.get("ID_VENDOR_ID", hex_hash[0:4])
@@ -73,6 +75,7 @@ def add_board(id=None, **kwargs):
                 "ID_VENDOR_FROM_DATABASE": "QinHeng Electronics",
                 "DRIVER": "ch341",
                 "ID_PATH": ID_PATH,
+                "DEVPATH": DEVPATH,
             },
         },
     ]
