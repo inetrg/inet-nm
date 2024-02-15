@@ -46,7 +46,7 @@ def get_connected_id_paths() -> List[str]:
         parent = device.find_parent("usb", "usb_device")
         if parent is None:
             continue
-        locations.append(device.get("ID_PATH"))
+        locations.append(parent.get("ID_PATH"))
     return locations
 
 
@@ -74,7 +74,7 @@ def get_id_path_from_node(node: NmNode) -> str:
             and parent.get("ID_MODEL_ID") == model_id
             and parent.get("ID_SERIAL_SHORT") == serial_short
         ):
-            return device.get("ID_PATH")
+            return parent.get("ID_PATH")
     raise Exception("Node not found, maybe not connected")
 
 

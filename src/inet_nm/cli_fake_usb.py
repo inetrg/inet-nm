@@ -59,7 +59,6 @@ def add_board(id=None, **kwargs):
                 "subsystem": "usb",
                 "DEVTYPE": "usb_device",
             },
-            "ID_PATH": ID_PATH,
         },
         {
             "subsystem": "tty",
@@ -73,8 +72,8 @@ def add_board(id=None, **kwargs):
                 "ID_MODEL_FROM_DATABASE": "USB Serial",
                 "ID_VENDOR_FROM_DATABASE": "QinHeng Electronics",
                 "DRIVER": "ch341",
+                "ID_PATH": ID_PATH,
             },
-            "ID_PATH": ID_PATH,
         },
     ]
     fake_devices[id] = dev
