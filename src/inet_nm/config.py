@@ -255,6 +255,21 @@ class LocationConfig(_ConfigFile):
     _LOAD_TYPE = dict
 
 
+class LocationCache(_ConfigFile):
+    """Class for handling the location cache.
+
+
+    Args:
+        config_dir: Directory for the configuration files.
+
+    Attributes:
+        file_path (Path): Path to the env configuration file.
+    """
+
+    _FILENAME = "location_cache.json"
+    _LOAD_TYPE = list
+
+
 def get_default_path() -> Path:
     """
     Return the default path for the configuration files.
