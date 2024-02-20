@@ -147,9 +147,9 @@ def test_cli_example_locate(tmpdir, cli_readme_mock):
     )
     try:
         ret = json.loads(ret)
-        assert ret[0]["location"] == "1.1.1"
-        assert ret[1]["location"] == "2.3.4"
-        assert ret[2]["location"] == "in the garbage"
+        assert ret[0]["location"]["name"] == "1.1.1"
+        assert ret[1]["location"]["name"] == "2.3.4"
+        assert ret[2]["location"]["name"] == "in the garbage"
     except json.JSONDecodeError:
         assert False, "Could not decode json\n" + ret
 

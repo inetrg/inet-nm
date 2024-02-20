@@ -31,6 +31,8 @@ def test_cli_example(tmpdir, cli_readme_mock):
     ct.footer = "That was the example to show off and test most of the features."
 
     os.environ["NM_CONFIG_DIR"] = str(tmpdir)
+    if "INET_NM_FAKE_USB_PATH" in os.environ:
+        del os.environ["INET_NM_FAKE_USB_PATH"]
 
     ct.run_step(
         description="Let's just create a `board_info` list with some features...\n"
