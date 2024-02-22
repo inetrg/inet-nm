@@ -3,6 +3,7 @@ import argparse
 import inet_nm.config as cfg
 import inet_nm.location as loc
 from inet_nm._helpers import nm_print
+from inet_nm.power_control import DEFAULT_MAX_ALLOWED_NODES, PowerControl
 
 
 def _main():
@@ -14,9 +15,17 @@ def _main():
     nodes = cfg.NodesConfig(config_dir=args.config).load()
     loc_cache = cfg.LocationCache(config_dir=args.config)
     loc_cache.check_file(writable=True)
-
-    cache = loc.get_location_cache(nodes, loc_mapping)
-
+    caches = []
+    with PowerControl(
+        locations=loc_mapping,
+        nodes=nodes,
+        max_powered_devices=DEFAULT_MAX_ALLOWED_NODES,
+    ) as pc:
+        while not pc.power_on_complete:
+            pc.power_on_chunk()
+            caches.append(loc.get_location_cache(nodes, loc_mapping))
+            pc.power_off_unused()
+    cache = loc.merge_location_cache_chunks(caches)
     loc_cache.save(cache)
     nm_print(f"Updated {loc_cache.file_path}")
 
