@@ -14,7 +14,7 @@ from inet_nm.data_types import NmNode
 from inet_nm.usb_ctrl import get_ttys_from_nm_node
 
 
-def check_and_set_uninitialized_sn(node: NmNode, sns: List = None):
+def is_uninitialized_sn(node: NmNode, sns: List = None):
     """
     Check if a given NmNode has an uninitialized serial number and prompt the user
     to set it.
@@ -22,12 +22,28 @@ def check_and_set_uninitialized_sn(node: NmNode, sns: List = None):
     Args:
         node: An NmNode object.
         sns: List of serial numbers to check against.
+
+
+    """
+    # We cannot do anything with the sns if we don't have the cp210x module
+    if cp210x is None:
+        return False
+    sns = sns or ["0001"]
+
+    if node.serial not in sns:
+        return False
+    return True
+
+
+def set_uninitialized_sn(node: NmNode):
+    """
+    Set the serial number of a given NmNode.
+
+    Args:
+        node: An NmNode object.
     """
 
     if cp210x is None:
-        return
-    sns = sns or ["0001"]
-    if node.serial not in sns:
         return
 
     pid_vid_sn = {
