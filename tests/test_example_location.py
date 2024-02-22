@@ -27,6 +27,9 @@ def test_cli_example_locate(tmpdir, cli_readme_mock):
     ct.footer += "Then add all the boards in after. "
     ct.footer += "I hope you enjoyed and learned a little something."
 
+    os.environ["NM_CONFIG_DIR"] = str(tmpdir)
+    os.environ["INET_NM_FAKE_USB_PATH"] = str(tmpdir) + "/fakes.json"
+
     ct.run_step(
         description="We would like to display the following command but "
         "need some setup.",
@@ -37,15 +40,6 @@ def test_cli_example_locate(tmpdir, cli_readme_mock):
     )
 
     ct.run_step(
-        cmd="inet-nm-show-location",
-        args=[
-            "--help",
-        ],
-    )
-
-    os.environ["NM_CONFIG_DIR"] = str(tmpdir)
-
-    ct.run_step(
         description="First let's fake plug in a board.",
         cmd="inet-nm-fake-usb",
         args=[
@@ -53,8 +47,6 @@ def test_cli_example_locate(tmpdir, cli_readme_mock):
             "board_1",
         ],
     )
-
-    os.environ["INET_NM_FAKE_USB_PATH"] = str(tmpdir) + "/fakes.json"
 
     ct.run_step(
         description="OK... all set, let's see this now!",

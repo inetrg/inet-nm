@@ -309,6 +309,8 @@ def check_commit_hash(config_dir: Union[Path, str]) -> bool:
     """
     bich = BoardInfoCommitHash(config_dir)
     commit_data = bich.load()
+    if not commit_data:
+        return False
     current_commit_data = get_commit()
     if current_commit_data and commit_data:
         if current_commit_data[1] != commit_data[1]:
