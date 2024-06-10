@@ -1,7 +1,7 @@
 import logging
 import subprocess
 from time import sleep
-from typing import List
+from typing import List, Optional
 
 import inet_nm.locking as lck
 import inet_nm.usb_ctrl as ucl
@@ -47,7 +47,7 @@ class PowerControl:
                 if id_path in self.powered_locations:
                     self._power_on(id_path)
 
-    def power_off_uid(self, uid: str):
+    def power_off_uid(self, uid: str, repeat: Optional[int] = None):
         if uid not in self.id_path_to_node_uid.values():
             raise ValueError(
                 f"Node with uid {uid} not found, "
@@ -56,23 +56,28 @@ class PowerControl:
         for id_path, node_uid in self.id_path_to_node_uid.items():
             if node_uid == uid:
                 if id_path in self.powered_locations:
-                    self._power_off(id_path)
+                    self._power_off(id_path, repeat=repeat)
 
-    def _power_off(self, id_path):
+    def _power_off(self, id_path, repeat: Optional[int] = None):
         self.logging.debug("Powering off %s", id_path)
         usb_info = self.powered_locations[id_path]
+        command = [
+            "sudo",
+            "uhubctl",
+            "-l",
+            usb_info["hub"],
+            "-p",
+            usb_info["port"],
+            "-a",
+            "off",
+        ]
+
+        if repeat is not None:
+            command += ["-r", str(repeat)]
+
         self._power_off_procs.append(
             subprocess.Popen(
-                [
-                    "sudo",
-                    "uhubctl",
-                    "-l",
-                    usb_info["hub"],
-                    "-p",
-                    usb_info["port"],
-                    "-a",
-                    "off",
-                ],
+                command,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True,
