@@ -3,6 +3,7 @@ import subprocess
 from time import sleep
 from typing import List
 
+import inet_nm.config as cfg
 import inet_nm.locking as lck
 import inet_nm.usb_ctrl as ucl
 from inet_nm.data_types import NmNode
@@ -15,7 +16,13 @@ class PowerControl:
     DEFAULT_POWER_OFF_WAIT = 1
     MAX_ALLOWED_NODES = 256
 
-    def __init__(self, locations, nodes: List[NmNode], max_powered_devices=None):
+    def __init__(
+        self,
+        locations,
+        nodes: List[NmNode],
+        max_powered_devices=None,
+        config: Optional[str] = None,
+    ):
         self.logging = logging.getLogger(__name__)
         self.id_path_to_node_uid = {}
         self.powered_locations = {}
@@ -30,6 +37,11 @@ class PowerControl:
         self._power_on_procs = []
         self._power_off_procs = []
         self._powered_on = set()
+
+        if config is not None:
+            self._cache_config = cfg.LocationCache(config_dir=config).load()
+        else:
+            self._cache_config = None
 
     def _available(self, powered_devs) -> int:
         if self.max_powered_devices is not None:
@@ -148,6 +160,12 @@ class PowerControl:
                 continue
             uid = ucl.get_uid_from_id_path(id_path)
             self.id_path_to_node_uid[id_path] = uid
+
+        if self._cache_config is not None:
+            for cache in self._cache_config:
+                if cache["id_path"] in self.id_path_to_node_uid:
+                    continue
+                self.id_path_to_node_uid[cache["id_path"]] = cache["node_uid"]
 
     def power_off_unused(self) -> None:
         self.logging.debug("Powering off")
