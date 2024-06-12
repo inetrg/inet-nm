@@ -1,7 +1,7 @@
 import logging
 import subprocess
 from time import sleep
-from typing import List
+from typing import List, Optional
 
 import inet_nm.config as cfg
 import inet_nm.locking as lck
