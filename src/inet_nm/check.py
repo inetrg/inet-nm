@@ -277,7 +277,7 @@ def get_inventory_nodes(
     feat_eval: str = None,
     boards: List[str] = None,
     uids: List[str] = None,
-) -> Tuple[List[NmNode], List[NmNode], List[NmNode]]:
+) -> Tuple[List[NmNode], List[NmNode], List[NmNode], List[NmNode]]:
     """
     Get a list of nodes based on the provided parameters.
 
@@ -291,8 +291,8 @@ def get_inventory_nodes(
 
     Returns:
         A tuple of lists of nodes. The first list is the available nodes, the
-            second list is the used nodes, and the third list is the missing
-            nodes.
+            second list is the used nodes, the third list is the missing
+            nodes, the forth is the total node count.
     """
 
     kwargs = locals()
