@@ -125,7 +125,12 @@ class NmNodesRunner:
         self.threads = []
         for idx, node in enumerate(self.nodes):
             ttys = get_ttys_from_nm_node(node)
-            if ttys:
+            node_extra = self.extra_env.nodes.get(node.uid, {})
+            # some boards may have their UART on the 2nd interface
+            port_idx = int(node_extra.get("NM_PORT_IDX", 0))
+            if len(ttys) > port_idx:
+                nm_port = ttys[port_idx]
+            elif ttys:
                 nm_port = ttys[0]
             else:
                 nm_port = "Unknown"
@@ -141,7 +146,7 @@ class NmNodesRunner:
             for i, tty in enumerate(ttys):
                 node_env[f"NM_PORT_{i}"] = tty
             node_env.update(self.extra_env.shared)
-            node_env.update(self.extra_env.nodes.get(node.uid, {}))
+            node_env.update(node_extra)
 
             thread = Thread(target=self.func, args=(node, idx, node_env))
             thread.start()
